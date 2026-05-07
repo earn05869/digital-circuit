@@ -1,0 +1,745 @@
+#! /usr/bin/vvp
+:ivl_version "12.0 (stable)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/system.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/vhdl_sys.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/vhdl_textio.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/v2005_math.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/va_math.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/v2009.vpi";
+S_0x600e2f4e5ad0 .scope package, "$unit" "$unit" 2 1;
+ .timescale 0 0;
+S_0x600e2f4e78b0 .scope module, "tb_i2c_io_pad" "tb_i2c_io_pad" 3 3;
+ .timescale -9 -12;
+o0x7e1e406ac438 .functor BUFZ 1, C4<z>; HiZ drive
+; Elide local net with no drivers, v0x600e2f59eb90_0 name=_ivl_0
+v0x600e2f59ec90_0 .var "clk", 0 0;
+v0x600e2f59ed50_0 .var "ext_drive", 0 0;
+v0x600e2f59edf0_0 .var "ext_value", 0 0;
+v0x600e2f59ee90_0 .var "oe", 0 0;
+v0x600e2f59ef30_0 .var "rst_n", 0 0;
+v0x600e2f59efd0_0 .net "rx_data", 0 0, v0x600e2f59e890_0;  1 drivers
+L_0x7e1e402ce060 .functor BUFT 1, C8<331>, C4<0>, C4<0>, C4<0>;
+RS_0x7e1e406ac2b8 .resolv tri, L_0x600e2f59f270, L_0x600e2f59f530, L_0x7e1e402ce060;
+v0x600e2f59f070_0 .net8 "sda", 0 0, RS_0x7e1e406ac2b8;  3 drivers, strength-aware
+v0x600e2f59f110_0 .var "tx_data", 0 0;
+L_0x600e2f59f270 .functor MUXZ 1, o0x7e1e406ac438, v0x600e2f59edf0_0, v0x600e2f59ed50_0, C4<>;
+S_0x600e2f4e9a30 .scope task, "apply_reset" "apply_reset" 3 52, 3 52 0, S_0x600e2f4e78b0;
+ .timescale -9 -12;
+E_0x600e2f4f12b0 .event posedge, v0x600e2f59e600_0;
+TD_tb_i2c_io_pad.apply_reset ;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59ef30_0, 0, 1;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59f110_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59ee90_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59ed50_0, 0, 1;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59edf0_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59ef30_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %end;
+S_0x600e2f57e310 .scope task, "check_rx" "check_rx" 3 69, 3 69 0, S_0x600e2f4e78b0;
+ .timescale -9 -12;
+v0x600e2f4db0a0_0 .var "exp_val", 0 0;
+v0x600e2f4db490_0 .var "test_name", 640 1;
+TD_tb_i2c_io_pad.check_rx ;
+    %load/vec4 v0x600e2f59efd0_0;
+    %load/vec4 v0x600e2f4db0a0_0;
+    %cmp/ne;
+    %jmp/0xz  T_1.0, 6;
+    %vpi_call/w 3 74 "$display", "FAIL [%0s] rx_data=%b exp=%b at t=%0t", v0x600e2f4db490_0, v0x600e2f59efd0_0, v0x600e2f4db0a0_0, $time {0 0 0};
+    %jmp T_1.1;
+T_1.0 ;
+    %vpi_call/w 3 77 "$display", "PASS [%0s] rx_data=%b", v0x600e2f4db490_0, v0x600e2f59efd0_0 {0 0 0};
+T_1.1 ;
+    %end;
+S_0x600e2f59db90 .scope task, "check_sda" "check_sda" 3 85, 3 85 0, S_0x600e2f4e78b0;
+ .timescale -9 -12;
+v0x600e2f4df9b0_0 .var "exp_val", 0 0;
+v0x600e2f4de750_0 .var "test_name", 640 1;
+TD_tb_i2c_io_pad.check_sda ;
+    %load/vec4 v0x600e2f59f070_0;
+    %load/vec4 v0x600e2f4df9b0_0;
+    %cmp/ne;
+    %jmp/0xz  T_2.2, 6;
+    %vpi_call/w 3 90 "$display", "FAIL [%0s] sda=%b exp=%b at t=%0t", v0x600e2f4de750_0, v0x600e2f59f070_0, v0x600e2f4df9b0_0, $time {0 0 0};
+    %jmp T_2.3;
+T_2.2 ;
+    %vpi_call/w 3 93 "$display", "PASS [%0s] sda=%b", v0x600e2f4de750_0, v0x600e2f59f070_0 {0 0 0};
+T_2.3 ;
+    %end;
+S_0x600e2f59ddd0 .scope begin, "tx_seq" "tx_seq" 3 234, 3 234 0, S_0x600e2f4e78b0;
+ .timescale -9 -12;
+v0x600e2f4c3d50_0 .var "byte_val", 7 0;
+v0x600e2f589c70_0 .var/i "i", 31 0;
+S_0x600e2f59e050 .scope module, "u_dut" "i2c_io_pad" 3 28, 4 10 0, S_0x600e2f4e78b0;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "clk";
+    .port_info 1 /INPUT 1 "resetn";
+    .port_info 2 /INPUT 1 "tx_data";
+    .port_info 3 /INPUT 1 "output_enable";
+    .port_info 4 /OUTPUT 1 "rx_data";
+    .port_info 5 /INOUT 1 "sda";
+L_0x600e2f588890 .functor AND 1, v0x600e2f59ee90_0, L_0x600e2f59f370, C4<1>, C4<1>;
+v0x600e2f59e2c0_0 .net *"_ivl_1", 0 0, L_0x600e2f59f370;  1 drivers
+v0x600e2f59e3a0_0 .net *"_ivl_3", 0 0, L_0x600e2f588890;  1 drivers
+L_0x7e1e402ce018 .functor BUFT 1, C4<0>, C4<0>, C4<0>, C4<0>;
+v0x600e2f59e460_0 .net/2u *"_ivl_4", 0 0, L_0x7e1e402ce018;  1 drivers
+o0x7e1e406ac1c8 .functor BUFZ 1, C4<z>; HiZ drive
+; Elide local net with no drivers, v0x600e2f59e520_0 name=_ivl_6
+v0x600e2f59e600_0 .net "clk", 0 0, v0x600e2f59ec90_0;  1 drivers
+v0x600e2f59e710_0 .net "output_enable", 0 0, v0x600e2f59ee90_0;  1 drivers
+v0x600e2f59e7d0_0 .net "resetn", 0 0, v0x600e2f59ef30_0;  1 drivers
+v0x600e2f59e890_0 .var "rx_data", 0 0;
+v0x600e2f59e950_0 .net8 "sda", 0 0, RS_0x7e1e406ac2b8;  alias, 3 drivers, strength-aware
+v0x600e2f59ea10_0 .net "tx_data", 0 0, v0x600e2f59f110_0;  1 drivers
+E_0x600e2f4ec7d0/0 .event negedge, v0x600e2f59e7d0_0;
+E_0x600e2f4ec7d0/1 .event posedge, v0x600e2f59e600_0;
+E_0x600e2f4ec7d0 .event/or E_0x600e2f4ec7d0/0, E_0x600e2f4ec7d0/1;
+L_0x600e2f59f370 .reduce/nor v0x600e2f59f110_0;
+L_0x600e2f59f530 .functor MUXZ 1, o0x7e1e406ac1c8, L_0x7e1e402ce018, L_0x600e2f588890, C4<>;
+    .scope S_0x600e2f59e050;
+T_3 ;
+    %wait E_0x600e2f4ec7d0;
+    %load/vec4 v0x600e2f59e7d0_0;
+    %nor/r;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_3.0, 8;
+    %pushi/vec4 1, 0, 1;
+    %assign/vec4 v0x600e2f59e890_0, 0;
+    %jmp T_3.1;
+T_3.0 ;
+    %load/vec4 v0x600e2f59e950_0;
+    %assign/vec4 v0x600e2f59e890_0, 0;
+T_3.1 ;
+    %jmp T_3;
+    .thread T_3;
+    .scope S_0x600e2f4e78b0;
+T_4 ;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59ec90_0, 0, 1;
+    %end;
+    .thread T_4;
+    .scope S_0x600e2f4e78b0;
+T_5 ;
+    %delay 5000, 0;
+    %load/vec4 v0x600e2f59ec90_0;
+    %inv;
+    %store/vec4 v0x600e2f59ec90_0, 0, 1;
+    %jmp T_5;
+    .thread T_5;
+    .scope S_0x600e2f4e78b0;
+T_6 ;
+    %vpi_call/w 3 102 "$display", "=== tb_i2c_io_pad START ===" {0 0 0};
+    %vpi_call/w 3 108 "$display", "--- TEST1: Reset ---" {0 0 0};
+    %fork TD_tb_i2c_io_pad.apply_reset, S_0x600e2f4e9a30;
+    %join;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f4db0a0_0, 0, 1;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 82, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1163085140, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1599232095, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1212761928, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v0x600e2f4db490_0, 0, 640;
+    %fork TD_tb_i2c_io_pad.check_rx, S_0x600e2f57e310;
+    %join;
+    %vpi_call/w 3 113 "$display", "    rx_data=1 on reset = bus idle \342\234\205" {0 0 0};
+    %vpi_call/w 3 120 "$display", "--- TEST2: OE=0 receive mode ---" {0 0 0};
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59ee90_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59f110_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f4df9b0_0, 0, 1;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 5195056, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1599292481, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1599100236, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1280659551, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1212761928, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v0x600e2f4de750_0, 0, 640;
+    %fork TD_tb_i2c_io_pad.check_sda, S_0x600e2f59db90;
+    %join;
+    %vpi_call/w 3 128 "$display", "    SDA=1 from pull-up when OE=0 \342\234\205" {0 0 0};
+    %vpi_call/w 3 134 "$display", "--- TEST3: OE=1 tx=0 drive LOW ---" {0 0 0};
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59ee90_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59f110_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f4df9b0_0, 0, 1;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 5195057, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1599363120, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1599292481, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1598836567, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v0x600e2f4de750_0, 0, 640;
+    %fork TD_tb_i2c_io_pad.check_sda, S_0x600e2f59db90;
+    %join;
+    %vpi_call/w 3 141 "$display", "    SDA=0 DUT pulls bus LOW \342\234\205" {0 0 0};
+    %vpi_call/w 3 148 "$display", "--- TEST4: OE=1 tx=1 release SDA ---" {0 0 0};
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59ee90_0, 0, 1;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59f110_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f4df9b0_0, 0, 1;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1329934687, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1415065951, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1396982111, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1212761928, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v0x600e2f4de750_0, 0, 640;
+    %fork TD_tb_i2c_io_pad.check_sda, S_0x600e2f59db90;
+    %join;
+    %vpi_call/w 3 155 "$display", "    SDA=1 DUT releases bus \342\234\205" {0 0 0};
+    %vpi_call/w 3 162 "$display", "--- TEST5: Sample SDA HIGH ---" {0 0 0};
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59ee90_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59ed50_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f4db0a0_0, 0, 1;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 5456205, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1347175775, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1396982111, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1212761928, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v0x600e2f4db490_0, 0, 640;
+    %fork TD_tb_i2c_io_pad.check_rx, S_0x600e2f57e310;
+    %join;
+    %vpi_call/w 3 169 "$display", "    rx_data=1 sampled from bus \342\234\205" {0 0 0};
+    %vpi_call/w 3 176 "$display", "--- TEST6: Sample SDA LOW ---" {0 0 0};
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59ee90_0, 0, 1;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59ed50_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59edf0_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f4db0a0_0, 0, 1;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 21313, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1297108037, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1599292481, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1598836567, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v0x600e2f4db490_0, 0, 640;
+    %fork TD_tb_i2c_io_pad.check_rx, S_0x600e2f57e310;
+    %join;
+    %vpi_call/w 3 184 "$display", "    rx_data=0 sampled from bus \342\234\205" {0 0 0};
+    %vpi_call/w 3 192 "$display", "--- TEST7: Bus contention both LOW ---" {0 0 0};
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59ee90_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59f110_0, 0, 1;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59ed50_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59edf0_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f4df9b0_0, 0, 1;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 4411214, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1413828180, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1229934175, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1112495176, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1598836567, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v0x600e2f4de750_0, 0, 640;
+    %fork TD_tb_i2c_io_pad.check_sda, S_0x600e2f59db90;
+    %join;
+    %vpi_call/w 3 201 "$display", "    SDA=0 both devices pull LOW \342\234\205" {0 0 0};
+    %vpi_call/w 3 210 "$display", "--- TEST8: Arbitration DUT=H ext=L ---" {0 0 0};
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59ee90_0, 0, 1;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59f110_0, 0, 1;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59ed50_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59edf0_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f4df9b0_0, 0, 1;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1095909983, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1163416671, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1464421971, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1598836567, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v0x600e2f4de750_0, 0, 640;
+    %fork TD_tb_i2c_io_pad.check_sda, S_0x600e2f59db90;
+    %join;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f4db0a0_0, 0, 1;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 4280898, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1599232095, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1397048659, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1598836567, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v0x600e2f4db490_0, 0, 640;
+    %fork TD_tb_i2c_io_pad.check_rx, S_0x600e2f57e310;
+    %join;
+    %vpi_call/w 3 222 "$display", "    external wins arbitration \342\234\205" {0 0 0};
+    %vpi_call/w 3 223 "$display", "    DUT samples LOW = detects arb loss \342\234\205" {0 0 0};
+    %vpi_call/w 3 230 "$display", "--- TEST9: TX sequence 0xA5 = 1010_0101 ---" {0 0 0};
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59ed50_0, 0, 1;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f59ee90_0, 0, 1;
+    %fork t_1, S_0x600e2f59ddd0;
+    %jmp t_0;
+    .scope S_0x600e2f59ddd0;
+t_1 ;
+    %pushi/vec4 165, 0, 8;
+    %store/vec4 v0x600e2f4c3d50_0, 0, 8;
+    %pushi/vec4 7, 0, 32;
+    %store/vec4 v0x600e2f589c70_0, 0, 32;
+T_6.0 ;
+    %load/vec4 v0x600e2f589c70_0;
+    %cmpi/s 0, 0, 32;
+    %flag_inv 5; GE is !LT
+    %jmp/0xz T_6.1, 5;
+    %load/vec4 v0x600e2f4c3d50_0;
+    %load/vec4 v0x600e2f589c70_0;
+    %part/s 1;
+    %store/vec4 v0x600e2f59f110_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %load/vec4 v0x600e2f59f070_0;
+    %load/vec4 v0x600e2f4c3d50_0;
+    %load/vec4 v0x600e2f589c70_0;
+    %part/s 1;
+    %cmp/ne;
+    %jmp/0xz  T_6.2, 6;
+    %vpi_call/w 3 245 "$display", "FAIL [TX_BIT%0d] sda=%b exp=%b", v0x600e2f589c70_0, v0x600e2f59f070_0, &PV<v0x600e2f4c3d50_0, v0x600e2f589c70_0, 1> {0 0 0};
+    %jmp T_6.3;
+T_6.2 ;
+    %vpi_call/w 3 248 "$display", "PASS [TX_BIT%0d] sda=%b", v0x600e2f589c70_0, v0x600e2f59f070_0 {0 0 0};
+T_6.3 ;
+    %load/vec4 v0x600e2f589c70_0;
+    %subi 1, 0, 32;
+    %store/vec4 v0x600e2f589c70_0, 0, 32;
+    %jmp T_6.0;
+T_6.1 ;
+    %end;
+    .scope S_0x600e2f4e78b0;
+t_0 %join;
+    %vpi_call/w 3 257 "$display", "--- TEST10: Release after TX ---" {0 0 0};
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0x600e2f59ee90_0, 0, 1;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %wait E_0x600e2f4f12b0;
+    %delay 1000, 0;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0x600e2f4df9b0_0, 0, 1;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1380273221, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1095976287, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1396982111, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1212761928, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v0x600e2f4de750_0, 0, 640;
+    %fork TD_tb_i2c_io_pad.check_sda, S_0x600e2f59db90;
+    %join;
+    %vpi_call/w 3 263 "$display", "    SDA returns HIGH after release \342\234\205" {0 0 0};
+    %vpi_call/w 3 265 "$display", "=== tb_i2c_io_pad DONE ===" {0 0 0};
+    %vpi_call/w 3 266 "$finish" {0 0 0};
+    %end;
+    .thread T_6;
+    .scope S_0x600e2f4e78b0;
+T_7 ;
+    %vpi_call/w 3 273 "$dumpfile", "tb_i2c_io_pad.vcd" {0 0 0};
+    %vpi_call/w 3 274 "$dumpvars", 32'sb00000000000000000000000000000000, S_0x600e2f4e78b0 {0 0 0};
+    %end;
+    .thread T_7;
+    .scope S_0x600e2f4e78b0;
+T_8 ;
+    %vpi_call/w 3 281 "$monitor", "t=%0t | oe=%b tx=%b ext=%b extval=%b | sda=%b rx=%b", $time, v0x600e2f59ee90_0, v0x600e2f59f110_0, v0x600e2f59ed50_0, v0x600e2f59edf0_0, v0x600e2f59f070_0, v0x600e2f59efd0_0 {0 0 0};
+    %end;
+    .thread T_8;
+# The file index is used to find the file name in the following table.
+:file_names 5;
+    "N/A";
+    "<interactive>";
+    "-";
+    "tb/tb_i2c_io_pad.v";
+    "share/i2c_io_pad.v";

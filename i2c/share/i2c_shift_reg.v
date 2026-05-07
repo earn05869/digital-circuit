@@ -1,0 +1,66 @@
+/*
+I2C SHIFT REGISTER - Bidirectional Byte Shifter
+════════════════════════════════════════════════
+
+TRANSMIT MODE (Master→Slave)
+────────────────────────────
+1. Master loads 8-bit data via parallel input (data_in)
+2. On each SCL clock pulse, MSB shifts out to SDA line (serial_out)
+3. Slave samples SDA while SCL is high
+4. Remaining bits shift left each cycle until all 8 bits transmitted
+5. Next byte can be loaded after 8 shifts
+
+RECEIVE MODE (Slave→Master)
+───────────────────────────
+1. Slave drives SDA line bit-by-bit
+2. Master samples SDA on each SCL rising edge
+3. Sampled bit enters shift register via serial_in
+4. Previous bits shift left to make room
+5. After 8 shifts, complete byte available on data_out
+6. Ready for next byte after load reset
+
+OPERATION
+─────────
+• load:      Parallel load mode (TX)—stores data_in into 8-bit register
+• shift:     Serial shift mode—shifts all bits left, captures serial_in at LSB
+• serial_in: Input from SDA bus (RX mode) or don't-care (TX mode)
+• serial_out: MSB of register (drives open-drain SDA line in TX mode)
+• data_out:  Full 8-bit register value (available after 8 shifts in RX mode)
+• Reset:     Sets register to 0xFF (idle bus—open-drain high)
+*/
+
+module i2c_shift_reg (
+	input  wire       clk,
+	input  wire       rst_n,
+	input  wire       shift_tx,
+	input  wire       shift_rx,
+	input  wire       load,
+	input  wire       serial_in,
+	input  wire [7:0] data_in,
+	output wire       serial_out,
+	output wire [7:0] data_out );
+
+	reg [7:0] tx_mem;
+	reg [7:0] rx_mem;
+
+	always @(posedge clk or negedge rst_n) begin
+		if (!rst_n) begin
+			tx_mem <= 8'hFF;
+			rx_mem <= 8'h00;
+		end else begin
+			if (load) begin
+				tx_mem <= data_in;
+				rx_mem <= data_in;
+			end
+			else if (shift_tx)
+				tx_mem <= {tx_mem[6:0], 1'b1};
+
+			if (shift_rx)
+				rx_mem <= {rx_mem[6:0], serial_in};
+		end
+	end
+
+	assign serial_out = tx_mem[7];
+	assign data_out   = rx_mem;
+
+endmodule

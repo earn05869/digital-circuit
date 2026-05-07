@@ -1,0 +1,1196 @@
+==> Compiling tb_i2c
+==> Running tb_i2c
+
+==================================================
+   I2C CONTROLLER COMPREHENSIVE TESTBENCH
+==================================================
+VCD info: dumpfile tb_i2c.vcd opened for output.
+
+TEST 1: Multi-Byte Write (0x3C)
+  [FAIL]                                        Byte 1 Received Correctly (got xx)
+  [FAIL]                                        Byte 2 Received Correctly (got xx)
+  [FAIL]                                        Byte 3 Received Correctly (got xx)
+
+TEST 2: Master Read (0x3C)
+  [FAIL]                                       Master Read Byte 1 Correct (got xx)
+  [FAIL]                                       Master Read Byte 2 Correct (got xx)
+
+TEST 3: NACK Detection (Addressing 0x7F)
+  [PASS]                                   NACK Flag set in Master Status (got 1f)
+  [PASS]                            Slave RX FIFO remains empty (Correct) (got 01)
+
+TEST 4: Master TX FIFO Overflow Stress
+  [PASS]                                      Master TX FIFO reports FULL (got 01)
+
+TEST 5: Repeated START (Write Addr -> Read Data)
+  [FAIL]                                   Repeated START Read Successful (got xx)
+
+==================================================
+   FINAL TEST REPORT
+   Tests Run:    5
+   Passed:       3
+   Failed:       6
+==================================================
+   RESULT: BUGS DETECTED
+==================================================
+
+tb/tb_i2c.v:232: $finish called at 13565000 (1ps)
+==> VCD written to build/vcd/
+==> Compiling tb_i2c_bit_cnt
+==> Running tb_i2c_bit_cnt
+=== tb_i2c_bit_cnt START ===
+VCD info: dumpfile tb_i2c_bit_cnt.vcd opened for output.
+t=0 | en=0 clr=0 | cnt=x done=x
+t=5000 | en=0 clr=0 | cnt=0 done=0
+PASS [   RESET] cnt=0 done=0
+t=26000 | en=1 clr=0 | cnt=0 done=0
+t=35000 | en=1 clr=0 | cnt=1 done=0
+PASS [COUNT_UP] cnt=1 done=0
+t=45000 | en=1 clr=0 | cnt=2 done=0
+PASS [COUNT_UP] cnt=2 done=0
+t=55000 | en=1 clr=0 | cnt=3 done=0
+PASS [COUNT_UP] cnt=3 done=0
+t=65000 | en=1 clr=0 | cnt=4 done=0
+PASS [COUNT_UP] cnt=4 done=0
+t=75000 | en=1 clr=0 | cnt=5 done=0
+PASS [COUNT_UP] cnt=5 done=0
+t=85000 | en=1 clr=0 | cnt=6 done=0
+PASS [COUNT_UP] cnt=6 done=0
+t=95000 | en=1 clr=0 | cnt=7 done=0
+PASS [COUNT_UP] cnt=7 done=0
+t=105000 | en=1 clr=0 | cnt=8 done=1
+PASS [ONE_AT_8] cnt=8 done=1
+PASS [OLD_AT_8] cnt=8 done=1
+t=126000 | en=0 clr=0 | cnt=8 done=1
+t=135000 | en=0 clr=0 | cnt=0 done=0
+t=156000 | en=1 clr=0 | cnt=0 done=0
+t=165000 | en=1 clr=0 | cnt=1 done=0
+t=175000 | en=1 clr=0 | cnt=2 done=0
+t=185000 | en=1 clr=0 | cnt=3 done=0
+t=186000 | en=0 clr=0 | cnt=3 done=0
+PASS [ EN_HOLD] cnt=3 done=0
+t=206000 | en=1 clr=1 | cnt=3 done=0
+t=215000 | en=1 clr=1 | cnt=0 done=0
+PASS [   CLEAR] cnt=0 done=0
+t=216000 | en=1 clr=0 | cnt=0 done=0
+t=225000 | en=1 clr=0 | cnt=1 done=0
+t=235000 | en=1 clr=0 | cnt=2 done=0
+t=245000 | en=1 clr=0 | cnt=3 done=0
+t=255000 | en=1 clr=0 | cnt=4 done=0
+t=265000 | en=1 clr=0 | cnt=5 done=0
+t=275000 | en=1 clr=0 | cnt=6 done=0
+t=285000 | en=1 clr=0 | cnt=7 done=0
+t=295000 | en=1 clr=0 | cnt=8 done=1
+PASS [LL_CYCLE] cnt=8 done=1
+=== tb_i2c_bit_cnt DONE ===
+tb/tb_i2c_bit_cnt.v:133: $finish called at 296000 (1ps)
+==> VCD written to build/vcd/
+==> Compiling tb_i2c_bit_ctrl
+==> Running tb_i2c_bit_ctrl
+=== tb_i2c_bit_ctrl START ===
+--- TEST1: Reset ---
+VCD info: dumpfile tb_i2c_bit_ctrl.vcd opened for output.
+t=0 | en=0 scl=1 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+PASS [RESET_EN_LOW] got=0
+PASS [RESET_SDA_OE_LOW] got=0
+PASS [RESET_BYTE_DONE_LOW] got=0
+PASS [RESET_RX_VALID_LOW] got=0
+--- TEST2: TX byte 0xA5 = 1010_0101 ---
+PASS [TX_BIT7] serial_out=1
+t=66000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=75000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=96000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=115000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+FAIL [TX_BIT6] got=1 exp=0
+t=116000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=135000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=146000 | en=1 scl=1 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=165000 | en=1 scl=1 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x03
+FAIL [TX_BIT5] got=0 exp=1
+t=166000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x03
+t=185000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x03
+t=196000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x03
+t=215000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x07
+FAIL [TX_BIT4] got=1 exp=0
+t=216000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x07
+t=235000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x07
+t=246000 | en=1 scl=1 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x07
+t=265000 | en=1 scl=1 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0f
+PASS [TX_BIT3] serial_out=0
+t=266000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0f
+t=296000 | en=1 scl=1 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0f
+t=315000 | en=1 scl=1 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x1f
+FAIL [TX_BIT2] got=0 exp=1
+t=316000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x1f
+t=335000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x1f
+t=346000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x1f
+t=365000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x3f
+FAIL [TX_BIT1] got=1 exp=0
+t=366000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x3f
+t=385000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x3f
+t=396000 | en=1 scl=1 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x3f
+t=415000 | en=1 scl=1 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x7f
+FAIL [TX_BIT0] got=0 exp=1
+t=416000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x7f
+t=435000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x7f
+t=446000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x7f
+t=465000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xff
+t=466000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xff
+t=486000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xff
+t=496000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xff
+t=505000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=1 rx=0xff
+t=515000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xfe
+--- TEST3: RX byte 0xB2 = 1011_0010 ---
+t=516000 | en=0 scl=1 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=556000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=565000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=586000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=605000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=606000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=626000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=636000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=655000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=656000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=676000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=686000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=705000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=706000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=736000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=755000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x0b
+t=756000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x0b
+t=776000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x0b
+t=786000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x0b
+t=805000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x16
+t=806000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x16
+t=836000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x16
+t=855000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x2c
+t=856000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x2c
+t=876000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x2c
+t=886000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x2c
+t=905000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x59
+t=906000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x59
+t=926000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x59
+t=936000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x59
+t=955000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xb2
+t=956000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xb2
+t=986000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xb2
+t=995000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=1 rx=0xb2
+t=1005000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x64
+FAIL [RX_BYTE_0xB2] got=0x64 exp=0xb2 at t=1026000
+--- TEST4: byte_done fires once ---
+t=1026000 | en=0 scl=1 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=1066000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=1075000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=1096000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=1115000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=1116000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=1135000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=1136000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=1146000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=1165000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x02
+t=1166000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x02
+t=1185000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=1186000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=1196000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=1215000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=1216000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=1235000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=1236000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=1246000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=1265000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=1266000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=1296000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=1315000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x14
+t=1316000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x14
+t=1335000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=1336000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=1346000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=1365000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x29
+t=1366000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x29
+t=1385000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=1386000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=1396000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=1415000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x52
+t=1416000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x52
+t=1435000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=1436000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=1446000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=1465000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=1466000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=1486000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=1496000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=1505000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=1 rx=0xa5
+t=1515000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x4a
+PASS [BYTE_DONE] fired 1 time
+--- TEST5: sda_sampled ACK=0 ---
+t=1536000 | en=0 scl=1 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=1576000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=1585000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=1606000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=1625000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=1626000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=1645000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=1646000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=1656000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=1675000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x02
+t=1676000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x02
+t=1695000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=1696000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=1706000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=1725000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=1726000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=1745000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=1746000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=1756000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=1775000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=1776000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=1806000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=1825000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x14
+t=1826000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x14
+t=1845000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=1846000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=1856000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=1875000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x29
+t=1876000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x29
+t=1895000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=1896000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=1906000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=1925000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x52
+t=1926000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x52
+t=1945000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=1946000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=1956000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=1975000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=1976000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=1996000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=2006000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=2015000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=1 rx=0xa5
+t=2025000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x4a
+PASS [SDA_SAMPLED_ACK] got=0
+    sda_sampled=0 = ACK ✅
+--- TEST6: sda_sampled NACK=1 ---
+t=2046000 | en=0 scl=1 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=2086000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=2095000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2116000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2135000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=2136000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=2155000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=2156000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=2166000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=2185000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x02
+t=2186000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x02
+t=2205000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=2206000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=2216000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=2235000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=2236000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=2255000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=2256000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=2266000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=2285000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=2286000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=2316000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=2335000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x14
+t=2336000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x14
+t=2355000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=2356000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=2366000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=2385000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x29
+t=2386000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x29
+t=2405000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=2406000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=2416000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=2435000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x52
+t=2436000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x52
+t=2455000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=2456000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=2466000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=2485000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=2486000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=2516000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=2525000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=1 rx=0xa5
+t=2535000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x4b
+PASS [SDA_SAMPLED_NACK] got=1
+    sda_sampled=1 = NACK ✅
+--- TEST7: Disable mid byte ---
+t=2556000 | en=0 scl=1 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=2596000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=2605000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2616000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2626000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2646000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2665000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x00
+t=2676000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x00
+t=2696000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x00
+t=2715000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2726000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2746000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2765000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x00
+t=2776000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x00
+t=2796000 | en=0 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x00
+t=2805000 | en=0 scl=1 sda_in=0 | sda_out=0 sda_oe=0 byte_done=0 rx=0x00
+PASS [DISABLE_SDA_OE_LOW] got=0
+    SDA released after disable ✅
+--- TEST8: Back to back bytes ---
+t=2816000 | en=0 scl=1 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=2856000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=0 byte_done=0 rx=0x00
+t=2865000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2886000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x00
+t=2905000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=2906000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x01
+t=2925000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=2926000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=2936000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x01
+t=2955000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x02
+t=2956000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x02
+t=2975000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=2976000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=2986000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x02
+t=3005000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=3006000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x05
+t=3025000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=3026000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=3036000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x05
+t=3055000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=3056000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=3086000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x0a
+t=3105000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x14
+t=3106000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x14
+t=3125000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=3126000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=3136000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x14
+t=3155000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x29
+t=3156000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x29
+t=3175000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=3176000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=3186000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x29
+t=3205000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x52
+t=3206000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x52
+t=3225000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=3226000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=3236000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x52
+t=3255000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=3256000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=3276000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=3286000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa5
+t=3295000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=1 rx=0xa5
+t=3305000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x4a
+t=3325000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x4a
+t=3326000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x4a
+t=3356000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x4a
+t=3375000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x94
+t=3376000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x94
+t=3406000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x94
+t=3425000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x28
+t=3426000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x28
+t=3445000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x28
+t=3446000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x28
+t=3456000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x28
+t=3475000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x51
+t=3476000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x51
+t=3506000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x51
+t=3525000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa3
+t=3526000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa3
+t=3556000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0xa3
+t=3575000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x47
+t=3576000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x47
+t=3606000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x47
+t=3625000 | en=1 scl=1 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x8f
+t=3626000 | en=1 scl=0 sda_in=1 | sda_out=1 sda_oe=1 byte_done=0 rx=0x8f
+t=3645000 | en=1 scl=0 sda_in=1 | sda_out=0 sda_oe=1 byte_done=0 rx=0x8f
+t=3646000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x8f
+t=3656000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x8f
+t=3675000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x1e
+t=3676000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x1e
+t=3706000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x1e
+t=3725000 | en=1 scl=1 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x3c
+t=3726000 | en=1 scl=0 sda_in=0 | sda_out=0 sda_oe=1 byte_done=0 rx=0x3c
+t=3745000 | en=1 scl=0 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x3c
+t=3756000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x3c
+t=3765000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=1 rx=0x3c
+t=3775000 | en=1 scl=1 sda_in=0 | sda_out=1 sda_oe=1 byte_done=0 rx=0x78
+PASS [BACK2BACK] byte_done fired 2 times
+FAIL [BACK2BACK_RX] got=0x78 exp=0x3c at t=3796000
+=== tb_i2c_bit_ctrl DONE ===
+tb/tb_i2c_bit_ctrl.v:361: $finish called at 3796000 (1ps)
+==> VCD written to build/vcd/
+==> Compiling tb_i2c_clk_gen
+==> Running tb_i2c_clk_gen
+=== tb_i2c_clk_gen START ===
+--- sys_clk = 100MHz (10ns period) ---
+VCD info: dumpfile tb_i2c_clk_gen.vcd opened for output.
+t=0 | en=0 pre=0 | scl=1 rise=0 fall=0
+PASS [RESET_SCL_HIGH] scl_out=1
+    SCL HIGH on reset = idle bus ✅
+--- TEST2: Enable=0 SCL stays HIGH ---
+t=26000 | en=0 pre=4 | scl=1 rise=0 fall=0
+PASS [EN0_SCL_HIGH] scl_out=1
+    SCL stays HIGH when disabled ✅
+--- TEST3: Standard 100kHz ---
+t=226000 | en=0 pre=0 | scl=1 rise=0 fall=0
+t=256000 | en=1 pre=499 | scl=1 rise=0 fall=0
+t=265000 | en=1 pre=499 | scl=0 rise=0 fall=1
+t=275000 | en=1 pre=499 | scl=0 rise=0 fall=0
+t=5265000 | en=1 pre=499 | scl=1 rise=1 fall=0
+t=5275000 | en=1 pre=499 | scl=1 rise=0 fall=0
+t=10265000 | en=1 pre=499 | scl=0 rise=0 fall=1
+t=10275000 | en=1 pre=499 | scl=0 rise=0 fall=0
+    measured period = 10000 ns
+PASS [100KHZ] period=10000ns (expected 10000ns)
+t=15265000 | en=0 pre=499 | scl=1 rise=1 fall=0
+t=15275000 | en=0 pre=499 | scl=1 rise=0 fall=0
+--- TEST4: Fast 400kHz ---
+t=15276000 | en=0 pre=0 | scl=1 rise=0 fall=0
+t=15306000 | en=1 pre=124 | scl=1 rise=0 fall=0
+t=15315000 | en=1 pre=124 | scl=0 rise=0 fall=1
+t=15325000 | en=1 pre=124 | scl=0 rise=0 fall=0
+t=16565000 | en=1 pre=124 | scl=1 rise=1 fall=0
+t=16575000 | en=1 pre=124 | scl=1 rise=0 fall=0
+t=17815000 | en=1 pre=124 | scl=0 rise=0 fall=1
+t=17825000 | en=1 pre=124 | scl=0 rise=0 fall=0
+    measured period = 2500 ns
+PASS [400KHZ] period=2500ns (expected 2500ns)
+t=19065000 | en=0 pre=124 | scl=1 rise=1 fall=0
+t=19075000 | en=0 pre=124 | scl=1 rise=0 fall=0
+--- TEST5: scl_rising pulse check ---
+t=19076000 | en=0 pre=0 | scl=1 rise=0 fall=0
+t=19106000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=19115000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=19125000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=19165000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=19175000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=19215000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=19225000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=19265000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=19275000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=19315000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=19325000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=19365000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=19375000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=19415000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=19425000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=19465000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=19475000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=19515000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=19525000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=19565000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=19575000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=19615000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=19625000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=19665000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=19675000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=19715000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=19725000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=19765000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=19775000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=19815000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=19825000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=19865000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=19875000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=19915000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=19925000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=19965000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=19975000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=20015000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=20025000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=20065000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=20075000 | en=1 pre=4 | scl=1 rise=0 fall=0
+    rise_count = 10 (expected 10)
+PASS [SCL_RISING] count=10
+--- TEST6: scl_falling pulse check ---
+t=20086000 | en=0 pre=0 | scl=1 rise=0 fall=0
+t=20116000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=20125000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=20135000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=20175000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=20185000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=20225000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=20235000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=20275000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=20285000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=20325000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=20335000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=20375000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=20385000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=20425000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=20435000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=20475000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=20485000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=20525000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=20535000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=20575000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=20585000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=20625000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=20635000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=20675000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=20685000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=20725000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=20735000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=20775000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=20785000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=20825000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=20835000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=20875000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=20885000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=20925000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=20935000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=20975000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=20985000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=21025000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=21035000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=21075000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=21085000 | en=1 pre=4 | scl=1 rise=0 fall=0
+    fall_count = 10 (expected 10)
+PASS [SCL_FALLING] count=10
+--- TEST7: Disable mid transfer ---
+t=21096000 | en=0 pre=0 | scl=1 rise=0 fall=0
+t=21126000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=21135000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=21136000 | en=0 pre=4 | scl=0 rise=0 fall=1
+t=21145000 | en=0 pre=4 | scl=1 rise=0 fall=0
+PASS [DISABLE_MID_SCL_HIGH] scl_out=1
+    SCL released HIGH after disable ✅
+--- TEST8: Re-enable SCL ---
+t=21166000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=21175000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=21185000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=21225000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=21235000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=21275000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=21285000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=21325000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=21335000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=21375000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=21385000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=21425000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=21435000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=21475000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=21485000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=21525000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=21535000 | en=1 pre=4 | scl=1 rise=0 fall=0
+t=21575000 | en=1 pre=4 | scl=0 rise=0 fall=1
+t=21585000 | en=1 pre=4 | scl=0 rise=0 fall=0
+t=21625000 | en=1 pre=4 | scl=1 rise=1 fall=0
+t=21635000 | en=1 pre=4 | scl=1 rise=0 fall=0
+PASS [RE-ENABLE] SCL restarted cleanly
+=== tb_i2c_clk_gen DONE ===
+tb/tb_i2c_clk_gen.v:263: $finish called at 21646000 (1ps)
+t=21646000 | en=0 pre=4 | scl=1 rise=0 fall=0
+==> VCD written to build/vcd/
+==> Compiling tb_i2c_glitch_filter
+==> Running tb_i2c_glitch_filter
+=== tb_i2c_glitch_filter START ===
+--- FILTER_DEPTH = 3 ---
+--- needs 3 same samples to change output ---
+VCD info: dumpfile tb_i2c_glitch_filter.vcd opened for output.
+t=0 | raw_in=1 | filtered_out=x
+t=5000 | raw_in=1 | filtered_out=1
+PASS [RESET_HIGH] filtered_out=1
+    output HIGH on reset = bus idle ✅
+PASS [STABLE_HIGH] filtered_out=1
+t=76000 | raw_in=0 | filtered_out=1
+t=105000 | raw_in=0 | filtered_out=0
+PASS [STABLE_LOW] filtered_out=0
+--- TEST4: Glitch on HIGH line ---
+t=126000 | raw_in=1 | filtered_out=0
+t=155000 | raw_in=1 | filtered_out=1
+PASS [PRE_GLITCH_HIGH] filtered_out=1
+t=176000 | raw_in=0 | filtered_out=1
+PASS [GLITCH_1CYC_ON_HIGH] filtered_out=1
+    1 cycle glitch suppressed ✅
+--- TEST5: Glitch on LOW line ---
+t=186000 | raw_in=0 | filtered_out=1
+t=205000 | raw_in=0 | filtered_out=0
+PASS [PRE_GLITCH_LOW] filtered_out=0
+t=236000 | raw_in=1 | filtered_out=0
+t=246000 | raw_in=0 | filtered_out=0
+PASS [GLITCH_1CYC_ON_LOW] filtered_out=0
+    1 cycle glitch suppressed ✅
+--- TEST6: 2 cycle glitch ---
+t=256000 | raw_in=1 | filtered_out=0
+t=285000 | raw_in=1 | filtered_out=1
+t=306000 | raw_in=0 | filtered_out=1
+t=326000 | raw_in=1 | filtered_out=1
+PASS [GLITCH_2CYC_ON_HIGH] filtered_out=1
+    2 cycle glitch suppressed ✅
+--- TEST7: Real LOW transition ---
+PASS [BEFORE_REAL_TRANS] filtered_out=1
+t=386000 | raw_in=0 | filtered_out=1
+t=415000 | raw_in=0 | filtered_out=0
+PASS [REAL_TRANS_LOW] filtered_out=0
+    real transition accepted ✅
+--- TEST8: Real HIGH transition ---
+t=426000 | raw_in=1 | filtered_out=0
+t=455000 | raw_in=1 | filtered_out=1
+PASS [REAL_TRANS_HIGH] filtered_out=1
+    real transition accepted ✅
+--- TEST9: Multiple glitches ---
+t=516000 | raw_in=0 | filtered_out=1
+t=526000 | raw_in=1 | filtered_out=1
+t=536000 | raw_in=0 | filtered_out=1
+t=546000 | raw_in=1 | filtered_out=1
+t=556000 | raw_in=0 | filtered_out=1
+t=566000 | raw_in=1 | filtered_out=1
+PASS [MULTI_GLITCH] filtered_out=1
+    multiple glitches suppressed ✅
+=== tb_i2c_glitch_filter DONE ===
+tb/tb_i2c_glitch_filter.v:206: $finish called at 576000 (1ps)
+==> VCD written to build/vcd/
+==> Compiling tb_i2c_io_pad
+==> Running tb_i2c_io_pad
+=== tb_i2c_io_pad START ===
+--- TEST1: Reset ---
+VCD info: dumpfile tb_i2c_io_pad.vcd opened for output.
+t=0 | oe=0 tx=1 ext=0 extval=1 | sda=1 rx=1
+PASS [RESET_RX_HIGH] rx_data=1
+    rx_data=1 on reset = bus idle ✅
+--- TEST2: OE=0 receive mode ---
+t=36000 | oe=0 tx=0 ext=0 extval=1 | sda=1 rx=1
+PASS [OE0_SDA_PULLUP_HIGH] sda=1
+    SDA=1 from pull-up when OE=0 ✅
+--- TEST3: OE=1 tx=0 drive LOW ---
+t=56000 | oe=1 tx=0 ext=0 extval=1 | sda=0 rx=1
+t=65000 | oe=1 tx=0 ext=0 extval=1 | sda=0 rx=0
+PASS [OE1_TX0_SDA_LOW] sda=0
+    SDA=0 DUT pulls bus LOW ✅
+--- TEST4: OE=1 tx=1 release SDA ---
+t=76000 | oe=1 tx=1 ext=0 extval=1 | sda=1 rx=0
+t=85000 | oe=1 tx=1 ext=0 extval=1 | sda=1 rx=1
+PASS [OE1_TX1_SDA_HIGH] sda=1
+    SDA=1 DUT releases bus ✅
+--- TEST5: Sample SDA HIGH ---
+t=96000 | oe=0 tx=1 ext=0 extval=1 | sda=1 rx=1
+PASS [SAMPLE_SDA_HIGH] rx_data=1
+    rx_data=1 sampled from bus ✅
+--- TEST6: Sample SDA LOW ---
+t=116000 | oe=0 tx=1 ext=1 extval=0 | sda=0 rx=1
+t=125000 | oe=0 tx=1 ext=1 extval=0 | sda=0 rx=0
+PASS [SAMPLE_SDA_LOW] rx_data=0
+    rx_data=0 sampled from bus ✅
+--- TEST7: Bus contention both LOW ---
+t=136000 | oe=1 tx=0 ext=1 extval=0 | sda=0 rx=0
+PASS [CONTENTION_BOTH_LOW] sda=0
+    SDA=0 both devices pull LOW ✅
+--- TEST8: Arbitration DUT=H ext=L ---
+t=156000 | oe=1 tx=1 ext=1 extval=0 | sda=0 rx=0
+PASS [ARB_EXT_WINS_LOW] sda=0
+PASS [ARB_RX_SEES_LOW] rx_data=0
+    external wins arbitration ✅
+    DUT samples LOW = detects arb loss ✅
+--- TEST9: TX sequence 0xA5 = 1010_0101 ---
+t=176000 | oe=1 tx=1 ext=0 extval=0 | sda=1 rx=0
+t=185000 | oe=1 tx=1 ext=0 extval=0 | sda=1 rx=1
+PASS [TX_BIT7] sda=1
+t=196000 | oe=1 tx=0 ext=0 extval=0 | sda=0 rx=1
+t=205000 | oe=1 tx=0 ext=0 extval=0 | sda=0 rx=0
+PASS [TX_BIT6] sda=0
+t=216000 | oe=1 tx=1 ext=0 extval=0 | sda=1 rx=0
+t=225000 | oe=1 tx=1 ext=0 extval=0 | sda=1 rx=1
+PASS [TX_BIT5] sda=1
+t=236000 | oe=1 tx=0 ext=0 extval=0 | sda=0 rx=1
+t=245000 | oe=1 tx=0 ext=0 extval=0 | sda=0 rx=0
+PASS [TX_BIT4] sda=0
+PASS [TX_BIT3] sda=0
+t=276000 | oe=1 tx=1 ext=0 extval=0 | sda=1 rx=0
+t=285000 | oe=1 tx=1 ext=0 extval=0 | sda=1 rx=1
+PASS [TX_BIT2] sda=1
+t=296000 | oe=1 tx=0 ext=0 extval=0 | sda=0 rx=1
+t=305000 | oe=1 tx=0 ext=0 extval=0 | sda=0 rx=0
+PASS [TX_BIT1] sda=0
+t=316000 | oe=1 tx=1 ext=0 extval=0 | sda=1 rx=0
+t=325000 | oe=1 tx=1 ext=0 extval=0 | sda=1 rx=1
+PASS [TX_BIT0] sda=1
+--- TEST10: Release after TX ---
+t=336000 | oe=0 tx=1 ext=0 extval=0 | sda=1 rx=1
+PASS [RELEASE_SDA_HIGH] sda=1
+    SDA returns HIGH after release ✅
+=== tb_i2c_io_pad DONE ===
+tb/tb_i2c_io_pad.v:266: $finish called at 356000 (1ps)
+==> VCD written to build/vcd/
+==> Compiling tb_i2c_master_fsm
+==> Running tb_i2c_master_fsm
+=== tb_i2c_master_fsm START ===
+--- TEST1: Reset ---
+VCD info: dumpfile tb_i2c_master_fsm.vcd opened for output.
+t=0 | start=0 stop=0 bce=0 load=0 | busy=0 arb=0
+PASS [RESET_GEN_START] got=0
+PASS [RESET_GEN_STOP] got=0
+PASS [RESET_BITCTRL_EN] got=0
+PASS [RESET_LOAD] got=0
+PASS [RESET_BUSY] got=0
+--- TEST2: IDLE no start_req ---
+PASS [IDLE_NOT_BUSY] got=0
+PASS [IDLE_NO_GENSTART] got=0
+    FSM stays IDLE without start_req ✅
+--- TEST3: START generation ---
+t=195000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=196000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+PASS [GEN_START_FIRES] got=1
+PASS [BUSY_IN_START] got=1
+    gen_start fired on start_req ✅
+--- TEST4: ADDR load after start_done ---
+t=226000 | start=0 stop=0 bce=0 load=0 | busy=0 arb=0
+t=265000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=266000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=286000 | start=1 stop=0 bce=0 load=1 | busy=1 arb=0
+t=295000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=296000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+PASS [LOAD_ON_START_DONE] got=1
+PASS [BITCTRL_EN_ADDR] got=1
+    addr loaded into shift_reg after start_done ✅
+--- TEST5: Full write with ACK ---
+t=316000 | start=0 stop=0 bce=0 load=0 | busy=0 arb=0
+t=355000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=356000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=376000 | start=1 stop=0 bce=0 load=1 | busy=1 arb=0
+t=385000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=386000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=406000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=415000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=416000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=436000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=445000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=446000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=466000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=475000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=476000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=496000 | start=0 stop=1 bce=1 load=0 | busy=1 arb=0
+t=505000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=506000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=526000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=535000 | start=0 stop=0 bce=0 load=0 | busy=0 arb=0
+PASS [WRITE_GEN_START] got=1
+PASS [WRITE_LOAD] got=1
+PASS [WRITE_TX_RD_EN] got=1
+PASS [WRITE_GEN_STOP] got=1
+    full write ACK sequence complete ✅
+--- TEST6: NACK on address ---
+t=595000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=596000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=616000 | start=1 stop=0 bce=0 load=1 | busy=1 arb=0
+t=625000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=626000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=646000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=655000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=656000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=676000 | start=0 stop=1 bce=1 load=0 | busy=1 arb=0
+t=685000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=686000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+PASS [NACK_GEN_STOP] got=1
+PASS [NACK_NO_TX_RD] got=0
+    NACK on address → STOP immediately ✅
+t=716000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=725000 | start=0 stop=0 bce=0 load=0 | busy=0 arb=0
+PASS [NACK_BACK_IDLE] got=0
+    back to IDLE after NACK ✅
+--- TEST7: Full read ---
+t=785000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=786000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=806000 | start=1 stop=0 bce=0 load=1 | busy=1 arb=0
+t=815000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=816000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=836000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=845000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=846000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=866000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=875000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=876000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=896000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=905000 | start=0 stop=1 bce=1 load=0 | busy=1 arb=0
+t=906000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=926000 | start=0 stop=1 bce=1 load=0 | busy=1 arb=0
+t=935000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=936000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=956000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=965000 | start=0 stop=0 bce=0 load=0 | busy=0 arb=0
+PASS [READ_GEN_START] got=1
+PASS [READ_LOAD_ADDR] got=1
+PASS [READ_RX_WR_EN] got=1
+PASS [READ_GEN_STOP] got=1
+    full read sequence complete ✅
+--- TEST8: Busy flag ---
+PASS [NOT_BUSY_BEFORE] got=0
+t=1025000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=1026000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+PASS [BUSY_DURING_XFER] got=1
+t=1046000 | start=1 stop=0 bce=0 load=1 | busy=1 arb=0
+t=1055000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1056000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1076000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1085000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=1086000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1106000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=1115000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1116000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1136000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1145000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=1146000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1166000 | start=0 stop=1 bce=1 load=0 | busy=1 arb=0
+t=1175000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=1176000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=1196000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=1205000 | start=0 stop=0 bce=0 load=0 | busy=0 arb=0
+PASS [NOT_BUSY_AFTER] got=0
+    busy flag correct throughout ✅
+--- TEST9: Multi byte write ---
+t=1275000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=1276000 | start=1 stop=0 bce=0 load=0 | busy=1 arb=0
+t=1296000 | start=1 stop=0 bce=0 load=1 | busy=1 arb=0
+t=1305000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1306000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1326000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1335000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=1336000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1356000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=1365000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1366000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1386000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1395000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=1396000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1416000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=1425000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1426000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+PASS [MULTI_TX_RD_EN] got=1
+    tx_rd_en fires for next byte ✅
+t=1446000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1455000 | start=0 stop=0 bce=1 load=1 | busy=1 arb=0
+t=1456000 | start=0 stop=0 bce=1 load=0 | busy=1 arb=0
+t=1476000 | start=0 stop=1 bce=1 load=0 | busy=1 arb=0
+t=1485000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=1486000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+PASS [MULTI_GEN_STOP] got=1
+    STOP after last byte ✅
+t=1516000 | start=0 stop=1 bce=0 load=0 | busy=1 arb=0
+t=1525000 | start=0 stop=0 bce=0 load=0 | busy=0 arb=0
+PASS [MULTI_BACK_IDLE] got=0
+    back to IDLE after multi-byte write ✅
+=== tb_i2c_master_fsm DONE ===
+tb/tb_i2c_master_fsm.v:595: $finish called at 1546000 (1ps)
+==> VCD written to build/vcd/
+==> Compiling tb_i2c_shift_reg
+==> Running tb_i2c_shift_reg
+=== tb_i2c_shift_reg START ===
+VCD info: dumpfile tb_i2c_shift_reg.vcd opened for output.
+t=0 | load=0 shift_tx=0 shift_rx=0 sin=0 | sout=1 dout=0x00
+PASS [RESET] serial_out=1 after reset
+t=26000 | load=1 shift_tx=0 shift_rx=0 sin=0 | sout=1 dout=0x00
+FAIL [LOAD_0xA5] serial=1(exp 1) data=0x00(exp 0xa5)
+t=36000 | load=1 shift_tx=0 shift_rx=0 sin=0 | sout=1 dout=0x00
+--- TEST3: TX shift out 0xA5 = 1010_0101 ---
+PASS [TX_BIT7] serial_out=1
+t=46000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+t=55000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_BIT6] serial_out=0
+t=56000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+t=65000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+PASS [TX_BIT5] serial_out=1
+t=66000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+t=75000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_BIT4] serial_out=0
+t=76000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_BIT3] serial_out=0
+t=86000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+t=95000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+PASS [TX_BIT2] serial_out=1
+t=96000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+t=105000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_BIT1] serial_out=0
+t=106000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+t=115000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+PASS [TX_BIT0] serial_out=1
+t=116000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+t=126000 | load=0 shift_tx=0 shift_rx=0 sin=0 | sout=1 dout=0x00
+--- TEST4: RX shift in 0xB2 = 1011_0010 ---
+t=156000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x00
+t=165000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x01
+t=166000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x01
+t=175000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x02
+t=176000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x02
+t=185000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x05
+t=186000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x05
+t=195000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x0b
+t=196000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x0b
+t=205000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x16
+t=206000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x16
+t=215000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x2c
+t=216000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x2c
+t=225000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x59
+t=226000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x59
+t=235000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0xb2
+PASS [RX_BYTE] data_out=0xb2
+t=236000 | load=0 shift_tx=0 shift_rx=0 sin=0 | sout=1 dout=0x00
+t=266000 | load=1 shift_tx=0 shift_rx=0 sin=0 | sout=1 dout=0x00
+--- TEST5: TX shift 0xFF all bits should be 1 ---
+PASS [TX_FF_BIT0] serial_out=1
+t=276000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+PASS [TX_FF_BIT1] serial_out=1
+t=286000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+PASS [TX_FF_BIT2] serial_out=1
+t=296000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+PASS [TX_FF_BIT3] serial_out=1
+t=306000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+PASS [TX_FF_BIT4] serial_out=1
+t=316000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+PASS [TX_FF_BIT5] serial_out=1
+t=326000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+PASS [TX_FF_BIT6] serial_out=1
+t=336000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+PASS [TX_FF_BIT7] serial_out=1
+t=346000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+t=356000 | load=0 shift_tx=0 shift_rx=0 sin=0 | sout=1 dout=0x00
+t=386000 | load=1 shift_tx=0 shift_rx=0 sin=0 | sout=1 dout=0x00
+t=395000 | load=1 shift_tx=0 shift_rx=0 sin=0 | sout=0 dout=0x00
+--- TEST6: TX shift 0x00 all bits should be 0 ---
+PASS [TX_00_BIT0] serial_out=0
+t=396000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_00_BIT1] serial_out=0
+t=406000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_00_BIT2] serial_out=0
+t=416000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_00_BIT3] serial_out=0
+t=426000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_00_BIT4] serial_out=0
+t=436000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_00_BIT5] serial_out=0
+t=446000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_00_BIT6] serial_out=0
+t=456000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+PASS [TX_00_BIT7] serial_out=0
+t=466000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=0 dout=0x00
+t=475000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+t=476000 | load=0 shift_tx=0 shift_rx=0 sin=0 | sout=1 dout=0x00
+--- TEST7: RX shift in 0x37 = 0011_0111 ---
+t=506000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+t=516000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x00
+t=526000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x00
+t=535000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x01
+t=536000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x01
+t=545000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x03
+t=546000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x03
+t=555000 | load=0 shift_tx=1 shift_rx=1 sin=0 | sout=1 dout=0x06
+t=556000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x06
+t=565000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x0d
+t=566000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x0d
+t=575000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x1b
+t=576000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x1b
+t=585000 | load=0 shift_tx=1 shift_rx=1 sin=1 | sout=1 dout=0x37
+PASS [RX_0x37] data_out=0x37
+=== tb_i2c_shift_reg DONE ===
+tb/tb_i2c_shift_reg.v:222: $finish called at 586000 (1ps)
+t=586000 | load=0 shift_tx=0 shift_rx=0 sin=1 | sout=1 dout=0x37
+==> VCD written to build/vcd/
+==> Compiling tb_i2c_slave_fsm
+==> Running tb_i2c_slave_fsm
+=== tb_i2c_slave_fsm START ===
+--- TEST1: Reset ---
+VCD info: dumpfile tb_i2c_slave_fsm.vcd opened for output.
+t=0 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=0 sda_oe=0 sda_out=1
+PASS [RESET_BITCTRL_EN] got=0
+PASS [RESET_LOAD] got=0
+PASS [RESET_RX_WR_EN] got=0
+PASS [RESET_SDA_OE] got=0
+PASS [RESET_ADDR_MATCH] got=0
+PASS [RESET_BUSY] got=0
+--- TEST2: IDLE without start_det ---
+PASS [IDLE_NOT_BUSY] got=0
+PASS [IDLE_BITCTRL_OFF] got=0
+    FSM stays IDLE ✅
+--- TEST3: Wrong address no match ---
+t=196000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=216000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=225000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=0 sda_oe=0 sda_out=1
+PASS [WRONG_ADDR_NO_MATCH] got=0
+PASS [WRONG_ADDR_BACK_IDLE] got=0
+PASS [WRONG_ADDR_NO_ACK] got=0
+    wrong address ignored ✅
+--- TEST4: Correct address match ---
+t=316000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=336000 | bce=1 load=0 rxwe=0 txre=0 | match=1 busy=1 sda_oe=0 sda_out=1
+t=345000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=346000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+PASS [CORRECT_ADDR_MATCH] got=1
+PASS [ADDR_MATCH_BUSY] got=1
+PASS [ADDR_ACK_SDA_OE] got=1
+    address matched → ACK sent ✅
+--- TEST5: Master write to slave ---
+t=386000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=0 sda_oe=0 sda_out=1
+t=426000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=446000 | bce=1 load=0 rxwe=0 txre=0 | match=1 busy=1 sda_oe=0 sda_out=1
+t=455000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=456000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=496000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=505000 | bce=1 load=0 rxwe=1 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=506000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=526000 | bce=1 load=0 rxwe=1 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=535000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=536000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+PASS [WRITE_RX_WR_EN] got=1
+    rx_wr_en fires on received byte ✅
+t=576000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=585000 | bce=1 load=0 rxwe=1 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=586000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=606000 | bce=1 load=0 rxwe=1 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=615000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=616000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+PASS [WRITE_RX_WR_EN_2] got=1
+    rx_wr_en fires again for 2nd byte ✅
+t=656000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=0 sda_oe=0 sda_out=1
+PASS [WRITE_STOP_IDLE] got=0
+    STOP → back to IDLE ✅
+--- TEST6: Master read from slave ---
+t=746000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=766000 | bce=1 load=0 rxwe=0 txre=0 | match=1 busy=1 sda_oe=0 sda_out=1
+t=775000 | bce=0 load=1 rxwe=0 txre=1 | match=0 busy=1 sda_oe=1 sda_out=0
+t=776000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=816000 | bce=0 load=1 rxwe=0 txre=1 | match=0 busy=1 sda_oe=1 sda_out=0
+t=825000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=1
+t=826000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=1
+PASS [READ_TX_RD_EN] got=1
+PASS [READ_LOAD] got=1
+    tx_rd_en + load fires for TX byte ✅
+t=846000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=1
+t=855000 | bce=1 load=1 rxwe=0 txre=1 | match=0 busy=1 sda_oe=0 sda_out=1
+t=856000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=876000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=885000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=0 sda_oe=0 sda_out=1
+PASS [READ_BACK_IDLE] got=0
+    read complete → back to IDLE ✅
+--- TEST7: STOP mid transfer ---
+t=996000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=1016000 | bce=1 load=0 rxwe=0 txre=0 | match=1 busy=1 sda_oe=0 sda_out=1
+t=1025000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=1026000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=1066000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=1075000 | bce=1 load=0 rxwe=1 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=1076000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+PASS [MID_XFER_BUSY] got=1
+t=1096000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=0 sda_oe=0 sda_out=1
+PASS [STOP_MID_IDLE] got=0
+    stop_det → IDLE immediately ✅
+--- TEST8: Repeated START ---
+t=1196000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=1216000 | bce=1 load=0 rxwe=0 txre=0 | match=1 busy=1 sda_oe=0 sda_out=1
+t=1225000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=1226000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=1266000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=1275000 | bce=1 load=0 rxwe=1 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=1276000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+PASS [FIRST_XFER_BUSY] got=1
+t=1296000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=0 sda_oe=0 sda_out=1
+t=1306000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=1326000 | bce=1 load=0 rxwe=0 txre=0 | match=1 busy=1 sda_oe=0 sda_out=1
+t=1335000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=1336000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+PASS [REPEATED_START_MATCH] got=1
+    repeated START handled correctly ✅
+--- TEST9: Busy flag ---
+t=1356000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=0 sda_oe=0 sda_out=1
+PASS [BUSY_IDLE_LOW] got=0
+t=1396000 | bce=1 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=0 sda_out=1
+t=1416000 | bce=1 load=0 rxwe=0 txre=0 | match=1 busy=1 sda_oe=0 sda_out=1
+t=1425000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+t=1426000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=1 sda_oe=1 sda_out=0
+PASS [BUSY_XFER_HIGH] got=1
+t=1466000 | bce=0 load=0 rxwe=0 txre=0 | match=0 busy=0 sda_oe=0 sda_out=1
+PASS [BUSY_STOP_LOW] got=0
+    busy flag correct ✅
+=== tb_i2c_slave_fsm DONE ===
+tb/tb_i2c_slave_fsm.v:449: $finish called at 1516000 (1ps)
+==> VCD written to build/vcd/
+==> Compiling tb_i2c_start_stop
+==> Running tb_i2c_start_stop
+=== tb_i2c_start_stop START ===
+--- TEST1: Reset ---
+VCD info: dumpfile tb_i2c_start_stop.vcd opened for output.
+t=0 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+PASS [RESET_GENSTART_LOW] got=0
+PASS [RESET_GENSTOP_LOW] got=0
+PASS [RESET_SDA_OE_LOW] got=0
+PASS [RESET_STARTDET_LOW] got=0
+PASS [RESET_STOPDET_LOW] got=0
+PASS [RESET_DONE_LOW] got=0
+--- TEST2: Generate START ---
+t=75000 | scl=1 sda_in=1 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=76000 | scl=1 sda_in=1 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=85000 | scl=1 sda_in=1 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+PASS [START_SDA_FIRST_HIGH] got=1
+t=95000 | scl=1 sda_in=1 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=105000 | scl=1 sda_in=1 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=115000 | scl=1 sda_in=1 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=125000 | scl=1 sda_in=1 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=135000 | scl=1 sda_in=1 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=145000 | scl=1 sda_in=1 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=155000 | scl=1 sda_in=1 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=165000 | scl=1 sda_in=1 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+PASS [START_SDA_LOW_SCLHIGH] ✅
+t=166000 | scl=0 sda_in=1 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=175000 | scl=0 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=1
+t=185000 | scl=0 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+PASS [START_DONE] got=1
+    START generation done ✅
+--- TEST3: Detect START ---
+t=266000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=326000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=335000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=1 stop=0 done=0
+t=345000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+PASS [START_DET_FIRED] got=1
+    START detected on bus ✅
+--- TEST4: Generate STOP ---
+t=356000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=386000 | scl=0 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=425000 | scl=0 sda_in=0 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=426000 | scl=0 sda_in=0 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=435000 | scl=0 sda_in=0 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=445000 | scl=0 sda_in=0 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=455000 | scl=0 sda_in=0 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=465000 | scl=0 sda_in=0 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=475000 | scl=0 sda_in=0 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=476000 | scl=1 sda_in=0 | sda_out=0 sda_oe=1 | start=0 stop=0 done=0
+t=485000 | scl=1 sda_in=0 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=495000 | scl=1 sda_in=0 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=505000 | scl=1 sda_in=0 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=515000 | scl=1 sda_in=0 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=525000 | scl=1 sda_in=0 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=535000 | scl=1 sda_in=0 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=545000 | scl=1 sda_in=0 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=555000 | scl=1 sda_in=0 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+    checking SDA goes HIGH while SCL HIGH
+PASS [STOP_SDA_HIGH_SCLHIGH] sda_oe=1 sda_out=1 scl=1
+t=556000 | scl=1 sda_in=1 | sda_out=1 sda_oe=1 | start=0 stop=0 done=0
+t=565000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=1 done=1
+t=575000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+PASS [STOP_DONE] got=1
+    STOP generation done ✅
+--- TEST5: Detect STOP ---
+t=636000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=645000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=1 stop=0 done=0
+t=655000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=666000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=675000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=1 done=0
+t=685000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+PASS [STOP_DET_FIRED] got=1
+    STOP detected on bus ✅
+--- TEST6: No false START/STOP ---
+t=726000 | scl=0 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=746000 | scl=0 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=776000 | scl=0 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+PASS [NO_FALSE_START] not triggered ✅
+PASS [NO_FALSE_STOP] not triggered ✅
+--- TEST7: Repeated START ---
+t=806000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=856000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=865000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=1 stop=0 done=0
+t=875000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+PASS [FIRST_START_DET] detected ✅
+t=886000 | scl=0 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=916000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=925000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=1 done=0
+t=935000 | scl=1 sda_in=1 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=946000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+t=955000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=1 stop=0 done=0
+t=965000 | scl=1 sda_in=0 | sda_out=1 sda_oe=0 | start=0 stop=0 done=0
+PASS [REPEATED_START_DET] detected ✅
+=== tb_i2c_start_stop DONE ===
+tb/tb_i2c_start_stop.v:382: $finish called at 976000 (1ps)
+==> VCD written to build/vcd/
