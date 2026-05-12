@@ -1,219 +1,209 @@
 module i2c_slave_fsm (
 	input  wire       clk,
 	input  wire       resetn,
+	
+	input  wire       i2c_en,
 	input  wire [6:0] slave_addr,
+	input  wire [7:0] api_len,
+	
 	input  wire       start_det,
 	input  wire       stop_det,
 	input  wire       byte_done,
 	input  wire       sda_sampled,
-	input  wire [7:0] rx_data,      // received byte
-	input  wire       tx_empty,     // nothing to send
-	output reg        bit_ctrl_en,  // enable bit_ctrl
-	output reg        load,         // load TX byte
-	output reg        tx_rd_en,     // pop TX FIFO
-	output reg        rx_wr_en,     // push RX FIFO
-	output reg        sda_oe,       // drive SDA
-	output reg        sda_out,      // SDA value
-	output reg        addr_match,   // address matched
-	output reg        busy,         // slave busy
-	output wire       ack_phase
+	input  wire [7:0] rx_data,
+	
+	input  wire       tx_empty,
+	input  wire       rx_full,
+	
+	output reg        bit_ctrl_en,
+	output reg        load,
+	output reg        tx_rd_en,
+	output reg        rx_wr_en,
+	output reg        sda_oe,
+	output reg        sda_out,
+	
+	output reg        addr_match,
+	output reg        busy,
+	output reg        api_done,
+	output reg        api_stop_det,
+	output reg        dir, // 0 = Master Write to us, 1 = Master Read from us
+	output wire       ack_phase,
+	
+	output reg        scl_oe,
+	output reg        scl_out
 );
 
-	// ─────────────────────────────────────
-	// State Encoding
-	// ─────────────────────────────────────
-	localparam IDLE         = 4'd0;
-	localparam ADDR_RX      = 4'd1;
-	localparam ADDR_ACK     = 4'd2;
-	localparam DATA_TX      = 4'd3;
-	localparam DATA_TX_ACK  = 4'd4;
-	localparam DATA_RX      = 4'd5;
-	localparam DATA_RX_ACK  = 4'd6;
+	localparam S_IDLE          = 4'd0;
+	localparam S_LISTEN_ADDR   = 4'd1;
+	localparam S_SEND_ACK_ADDR = 4'd2;
+	localparam S_TX_DATA_WAIT  = 4'd3;
+	localparam S_TX_DATA_LOAD  = 4'd4;
+	localparam S_TX_DATA_PREF  = 4'd5;
+	localparam S_TX_DATA       = 4'd6;
+	localparam S_RX_DATA_WAIT  = 4'd7;
+	localparam S_RX_DATA       = 4'd8;
 
 	reg [3:0] state, next_state;
+	reg [7:0] slv_byte_cnt;
+	
+	wire [6:0] rx_addr = rx_data[7:1];
+	wire       rx_rw   = rx_data[0];
+	wire       addr_hit = (rx_addr == slave_addr);
 
-	// ─────────────────────────────────────
-	// Extract received address and RW bit
-	// ─────────────────────────────────────
-	wire [6:0] rx_addr = rx_data[7:1];  // upper 7 bits
-	wire       rx_rw   = rx_data[0];    // LSB = R/W bit
+	// Qualified start_det: only act on START when not already listening to address.
+	// This prevents glitch-filter delay from creating false START events during
+	// data bit transmission (SDA=0 while SCL_filt still sees old high value).
+	wire start_det_q = start_det && (state != S_LISTEN_ADDR);
 
-	// ─────────────────────────────────────
-	// Address Match Check
-	// ─────────────────────────────────────
-	wire addr_hit = (rx_addr == slave_addr);
+	assign ack_phase = (state == S_RX_DATA) ? rx_full : 1'b0;
 
-	assign ack_phase = (state == ADDR_ACK) || (state == DATA_TX_ACK) || (state == DATA_RX_ACK);
-
-	// ─────────────────────────────────────
-	// State Register
-	// ─────────────────────────────────────
 	always @(posedge clk or negedge resetn) begin
-		if (!resetn)
-			state <= IDLE;
-		else
+		if (!resetn) begin
+			state        <= S_IDLE;
+			slv_byte_cnt <= 8'd0;
+			dir          <= 1'b0;
+			api_stop_det <= 1'b0;
+		end else if (!i2c_en) begin
+			state        <= S_IDLE;
+			slv_byte_cnt <= 8'd0;
+			dir          <= 1'b0;
+		end else if (stop_det) begin
+			state        <= S_IDLE;
+			api_stop_det <= 1'b1; // W1C by CPU
+		end else begin
 			state <= next_state;
+			
+		if (start_det_q) api_stop_det <= 1'b0;
+
+			if (state == S_IDLE) begin
+				slv_byte_cnt <= 8'd0;
+			end else if (state == S_LISTEN_ADDR && byte_done && addr_hit) begin
+				dir          <= rx_rw;
+				slv_byte_cnt <= 8'd0;
+			end else if ((state == S_RX_DATA || state == S_TX_DATA) && byte_done) begin
+				if (slv_byte_cnt + 1'b1 == api_len) begin
+					slv_byte_cnt <= 8'd0;
+				end else begin
+					slv_byte_cnt <= slv_byte_cnt + 8'd1;
+				end
+			end
+		end
 	end
 
-	// ─────────────────────────────────────
-	// Next State + Output Logic
-	// ─────────────────────────────────────
 	always @(*) begin
-		// defaults
 		next_state  = state;
+		
 		bit_ctrl_en = 1'b0;
 		load        = 1'b0;
 		tx_rd_en    = 1'b0;
 		rx_wr_en    = 1'b0;
 		sda_oe      = 1'b0;
-		sda_out     = 1'b1;   // default release SDA
+		sda_out     = 1'b1;
+		scl_oe      = 1'b0;
+		scl_out     = 1'b0;
+		
 		addr_match  = 1'b0;
 		busy        = 1'b0;
+		api_done    = 1'b0;
 
-		// Global bus condition handling:
-		// - STOP always terminates the current transaction immediately.
-		// - Repeated START restarts address reception (even mid-transfer).
-		if (stop_det) begin
-			next_state = IDLE;
-		end
-		else if (start_det && (state != IDLE)) begin
-			next_state = ADDR_RX;
-		end
-		else begin
-		case (state)
-
-			// ─────────────────────────
-			IDLE: begin
-				busy = 1'b0;
-				// wait for START condition
-				if (start_det)
-					next_state = ADDR_RX;
-			end
-
-			// ─────────────────────────
-			ADDR_RX: begin
-				// receive address byte from master
-				busy        = 1'b1;
-				bit_ctrl_en = 1'b1;     // enable bit_ctrl to receive
-
-				if (byte_done) begin
-					if (addr_hit) begin
-						// address matches — send ACK
-						addr_match = 1'b1;
-						next_state = ADDR_ACK;
-					end
-					else begin
-						// not our address — go back to IDLE
-						next_state = IDLE;
+		// Repeated START detection:
+		// - From any state except IDLE and LISTEN_ADDR → restart address phase
+		// - During LISTEN_ADDR, a spurious start_det (SDA low during SCL high
+		//   which can look like START) must NOT reset the bit counter.
+		//   Only move to LISTEN_ADDR if state > S_LISTEN_ADDR (i.e. mid-data).
+		if (start_det_q && state > S_LISTEN_ADDR) begin
+			next_state  = S_LISTEN_ADDR;
+			bit_ctrl_en = 1'b1; // keep bit ctrl alive during transition
+		end else begin
+			case (state)
+				S_IDLE: begin
+					if (start_det_q && i2c_en) next_state = S_LISTEN_ADDR;
+				end
+				
+				S_LISTEN_ADDR: begin
+					busy        = 1'b1;
+					bit_ctrl_en = 1'b1;
+					if (byte_done) begin
+						if (addr_hit) begin
+							addr_match = 1'b1;
+							next_state = S_SEND_ACK_ADDR;
+						end else begin
+							next_state = S_IDLE;
+						end
 					end
 				end
 
-				// START or STOP resets state
-				if (stop_det)
-					next_state = IDLE;
-			end
+				S_SEND_ACK_ADDR: begin
+					busy        = 1'b1;
+					bit_ctrl_en = 1'b1;
+					sda_oe      = 1'b1;
+					sda_out     = 1'b0; // ACK
+					if (byte_done) begin
+						if (dir == 1'b1) begin
+							next_state = S_TX_DATA_WAIT;
+						end else begin
+							next_state = S_RX_DATA_WAIT;
+						end
+					end
+				end
 
-			// ─────────────────────────
-			ADDR_ACK: begin
-				// pull SDA low = ACK
-				busy    = 1'b1;
-				bit_ctrl_en = 1'b1;
-				sda_oe  = 1'b1;
-				sda_out = 1'b0;         // ACK = SDA low
-
-				if (byte_done) begin
-					if (rx_rw == 1'b1) begin
-						// master wants to READ from us
-						// load first TX byte
-						tx_rd_en   = 1'b1;
+				S_TX_DATA_WAIT: begin
+					busy = 1'b1;
+					if (tx_empty) begin
+						scl_oe  = 1'b1;
+						scl_out = 1'b0;
+					end else begin
 						load       = 1'b1;
-						next_state = DATA_TX;
-					end
-					else begin
-						// master wants to WRITE to us
-						next_state = DATA_RX;
+						next_state = S_TX_DATA_PREF;
 					end
 				end
-			end
 
-			// ─────────────────────────
-			DATA_TX: begin
-				// slave sends data to master
-				busy        = 1'b1;
-				bit_ctrl_en = 1'b1;     // bit_ctrl sends from shift_reg
-				sda_oe      = 1'b1;
+				S_TX_DATA_PREF: begin
+					busy     = 1'b1;
+					tx_rd_en = 1'b1;
+					next_state = S_TX_DATA;
+				end
 
-				if (byte_done)
-					next_state = DATA_TX_ACK;
-			end
-
-			// ─────────────────────────
-			DATA_TX_ACK: begin
-				// wait for master ACK/NACK
-				busy        = 1'b1;
-				bit_ctrl_en = 1'b1;
-
-				if (byte_done) begin
-					if (sda_sampled == 1'b0) begin
-						// master ACK — send more data
-						if (!tx_empty) begin
-							tx_rd_en   = 1'b1;  // pop next byte
-							load       = 1'b1;  // load shift_reg
-							next_state = DATA_TX;
-						end
-						else begin
-							// nothing left to send
-							next_state = IDLE;
+				S_TX_DATA: begin
+					busy        = 1'b1;
+					bit_ctrl_en = 1'b1;
+					sda_oe      = 1'b1;
+					if (byte_done) begin
+						if (sda_sampled == 1'b0) begin // Master ACK
+							if (slv_byte_cnt + 1'b1 == api_len) api_done = 1'b1;
+							next_state = S_TX_DATA_WAIT;
+						end else begin
+							// Master NACK -> End of Read
+							next_state = S_IDLE;
 						end
 					end
-					else begin
-						// master NACK — done reading
-						next_state = IDLE;
+				end
+
+				S_RX_DATA_WAIT: begin
+					busy = 1'b1;
+					if (rx_full) begin
+						// Wait, slave shouldn't stretch clock if rx is full before receiving the byte.
+						// Actually, if RX is full, we should just let it receive and send NACK!
+						// But if we want to stretch clock, we could... no, the spec says send NACK.
+						// So we just proceed to S_RX_DATA immediately.
+					end
+					next_state = S_RX_DATA;
+				end
+
+				S_RX_DATA: begin
+					busy        = 1'b1;
+					bit_ctrl_en = 1'b1;
+					if (byte_done) begin
+						if (!rx_full) rx_wr_en = 1'b1;
+						if (slv_byte_cnt + 1'b1 == api_len) api_done = 1'b1;
+						
+						// Proceed to next byte wait
+						next_state = S_RX_DATA_WAIT;
 					end
 				end
 
-				if (stop_det)
-					next_state = IDLE;
-			end
-
-			// ─────────────────────────
-			DATA_RX: begin
-				// slave receives data from master
-				busy        = 1'b1;
-				bit_ctrl_en = 1'b1;     // bit_ctrl receives into shift_reg
-
-				if (byte_done) begin
-					rx_wr_en   = 1'b1;  // push received byte to RX FIFO
-					next_state = DATA_RX_ACK;
-				end
-
-				if (stop_det)
-					next_state = IDLE;
-			end
-
-			// ─────────────────────────
-			DATA_RX_ACK: begin
-				// slave sends ACK to master
-				busy    = 1'b1;
-				bit_ctrl_en = 1'b1;
-				sda_oe  = 1'b1;
-				sda_out = 1'b0;         // ACK = pull SDA low
-
-				if (byte_done) begin
-					// more data coming?
-					if (!stop_det)
-						next_state = DATA_RX;
-					else
-						next_state = IDLE;
-				end
-
-				if (stop_det)
-					next_state = IDLE;
-			end
-
-			default: next_state = IDLE;
-
-		endcase
+				default: next_state = S_IDLE;
+			endcase
 		end
 	end
 

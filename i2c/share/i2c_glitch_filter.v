@@ -1,38 +1,37 @@
 module i2c_glitch_filter #(parameter THRESHOLD = 3) (
-	input clk,
-	input resetn,
-	input raw_in,
-	output reg filtered_out
+	input  wire clk,
+	input  wire resetn,
+	input  wire raw_in,
+	output reg  filtered_out
 );
 
-	// Counts consecutive cycles where raw_in remains at the current stable value.
-	// Use a wide counter to avoid width/parameter edge cases.
-	reg [31:0] counter;
+	localparam CNT_WIDTH = (THRESHOLD > 1) ? $clog2(THRESHOLD + 1) : 2;
+
+	reg [CNT_WIDTH-1:0] counter;
 	reg last_value;
 
-	always @(posedge clk) begin
+	always @(posedge clk or negedge resetn) begin
 		if (!resetn) begin
-			counter      <= 'd0;
+			counter      <= 0;
 			last_value   <= 1'b1;
 			filtered_out <= 1'b1;
 		end else begin
 			if (raw_in == last_value) begin
-				// Hold stable value: increment until THRESHOLD samples collected.
-				if (counter < THRESHOLD)
+				if (counter < THRESHOLD) begin
 					counter <= counter + 1'b1;
+				end
+				
 
-				// Update output once we've accumulated THRESHOLD consecutive samples
-				// including the first sample after a change.
-				if ((counter + 1'b1) >= THRESHOLD)
+				if (counter == THRESHOLD - 1) begin
 					filtered_out <= last_value;
+				end
 			end else begin
-				// Raw changed: start counting the new value (count the first sample now).
 				last_value <= raw_in;
-				counter    <= 32'd1;
-				if (THRESHOLD == 0)
+				counter    <= 1;
+				
+				if (THRESHOLD == 0 || THRESHOLD == 1) begin
 					filtered_out <= raw_in;
-				else if (THRESHOLD == 1)
-					filtered_out <= raw_in;
+				end
 			end
 		end
 	end

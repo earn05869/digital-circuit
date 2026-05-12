@@ -15,7 +15,7 @@ module i2c_bit_cnt (
 	output reg [3:0] count,
 	output done );
 
-	always @(posedge clk) begin
+	always @(posedge clk or negedge resetn) begin
 		if (!resetn)
 			count <= 4'd0;
 		else if (clear)

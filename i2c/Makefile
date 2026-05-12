@@ -14,9 +14,6 @@ SRC_FILES := \
 	$(wildcard share/*.v) \
 	$(wildcard master/*.v) \
 	$(wildcard slave/*.v)
-SRC_FILES := $(filter-out share/i2c_io_pad.v,$(SRC_FILES))
-# Per-test extra sources (for modules intentionally excluded by default)
-EXTRA_SRC_i2c_io_pad := share/i2c_io_pad.v
 
 .PHONY: all list clean
 

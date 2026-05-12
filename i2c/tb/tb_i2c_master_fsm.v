@@ -1,617 +1,194 @@
-`timescale 1ns/1ps
+`timescale 1ns / 1ps
 
 module tb_i2c_master_fsm;
 
-	// ─────────────────────────────────────
-	// Signal Declaration
-	// ─────────────────────────────────────
-	reg        clk;
-	reg        resetn;
-
-	// APB register inputs
-	reg        start_req;
-	reg        rw;
-	reg  [6:0] slave_addr;
-
-	// FIFO status
-	reg        tx_empty;
-
-	// bit_ctrl inputs
-	reg        byte_done;
-	reg        sda_sampled;
-
-	// start_stop inputs
-	reg        start_done;
-	reg        stop_done;
-
-	// outputs
-	wire       gen_start;
-	wire       gen_stop;
-	wire       bit_ctrl_en;
-	wire       load;
-	wire       tx_rd_en;
-	wire       rx_wr_en;
-	wire       arb_lost;
-	wire       busy;
-
-	// ─────────────────────────────────────
-	// DUT Instantiation
-	// ─────────────────────────────────────
-	i2c_master_fsm u_dut (
-		.clk         (clk),
-		.resetn      (resetn),
-		.start       (start_req),
-		.rw          (rw),
-		.slave_addr  (slave_addr),
-		.tx_empty    (tx_empty),
-		.byte_done   (byte_done),
-		.sda_sampled (sda_sampled),
-		.start_done  (start_done),
-		.stop_done   (stop_done),
-		.gen_start   (gen_start),
-		.gen_stop    (gen_stop),
-		.bit_ctrl_en (bit_ctrl_en),
-		.load        (load),
-		.tx_rd_en    (tx_rd_en),
-		.rx_wr_en    (rx_wr_en),
-		.arb_lost    (arb_lost),
-		.busy        (busy)
-	);
-
-	// ─────────────────────────────────────
-	// Clock — 10ns period
-	// ─────────────────────────────────────
-	initial clk = 0;
-	always  #5 clk = ~clk;
-
-	// ─────────────────────────────────────
-	// Capture flags
-	// ─────────────────────────────────────
-	reg gen_start_captured;
-	reg gen_stop_captured;
-	reg load_captured;
-	reg tx_rd_en_captured;
-	reg rx_wr_en_captured;
-	reg busy_captured;
-
-	always @(posedge clk) begin
-		if (gen_start) gen_start_captured <= 1'b1;
-		if (gen_stop)  gen_stop_captured  <= 1'b1;
-		if (load)      load_captured      <= 1'b1;
-		if (tx_rd_en)  tx_rd_en_captured  <= 1'b1;
-		if (rx_wr_en)  rx_wr_en_captured  <= 1'b1;
-		if (busy)      busy_captured      <= 1'b1;
-	end
-
-	// ─────────────────────────────────────
-	// Task — Reset
-	// ─────────────────────────────────────
-	task apply_reset;
-		begin
-			resetn      = 1'b0;
-			start_req   = 1'b0;
-			rw          = 1'b0;
-			slave_addr  = 7'h50;
-			tx_empty    = 1'b0;
-			byte_done   = 1'b0;
-			sda_sampled = 1'b0;   // ACK by default
-			start_done  = 1'b0;
-			stop_done   = 1'b0;
-
-			gen_start_captured = 1'b0;
-			gen_stop_captured  = 1'b0;
-			load_captured      = 1'b0;
-			tx_rd_en_captured  = 1'b0;
-			rx_wr_en_captured  = 1'b0;
-			busy_captured      = 1'b0;
-
-			@(posedge clk); #1;
-			@(posedge clk); #1;
-			resetn = 1'b1;
-			@(posedge clk); #1;
-		end
-	endtask
-
-	// ─────────────────────────────────────
-	// Task — Check 1-bit signal
-	// ─────────────────────────────────────
-	task check;
-		input       exp_val;
-		input       got_val;
-		input [80*8:1] test_name;
-		begin
-			if (got_val !== exp_val)
-				$display("FAIL [%0s] got=%b exp=%b at t=%0t",
-						  test_name, got_val, exp_val, $time);
-			else
-				$display("PASS [%0s] got=%b",
-						  test_name, got_val);
-		end
-	endtask
-
-	// ─────────────────────────────────────
-	// Task — Pulse 1-cycle signal
-	// ─────────────────────────────────────
-	task pulse;
-		inout sig;
-		begin
-			sig = 1'b1;
-			@(posedge clk); #1;
-			sig = 1'b0;
-		end
-	endtask
-
-	// ─────────────────────────────────────
-	// Task — Clear capture flags
-	// ─────────────────────────────────────
-	task clear_captures;
-		begin
-			gen_start_captured = 1'b0;
-			gen_stop_captured  = 1'b0;
-			load_captured      = 1'b0;
-			tx_rd_en_captured  = 1'b0;
-			rx_wr_en_captured  = 1'b0;
-			busy_captured      = 1'b0;
-		end
-	endtask
-
-	// ─────────────────────────────────────
-	// Task — Simulate full write transaction
-	// IDLE→START→ADDR→ADDR_ACK→DATA_TX→DATA_ACK→STOP→IDLE
-	// ─────────────────────────────────────
-	task do_write_transfer;
-		input ack_addr;   // 0=ACK, 1=NACK
-		input ack_data;   // 0=ACK, 1=NACK
-		input more_data;  // 1=send one more data byte after first
-		begin
-			rw = 1'b0;  // write
-
-			// IDLE → START
-			start_req = 1'b1;
-			@(posedge clk); #1;
-			start_req = 1'b0;
-			repeat(2) @(posedge clk); #1;
-
-			// START → ADDR
-			start_done = 1'b1;
-			@(posedge clk); #1;
-			start_done = 1'b0;
-			repeat(2) @(posedge clk); #1;
-
-			// ADDR → ADDR_ACK
-			byte_done = 1'b1;
-			@(posedge clk); #1;
-			byte_done = 1'b0;
-			repeat(2) @(posedge clk); #1;
-
-			// ADDR_ACK — drive ACK/NACK
-			sda_sampled = ack_addr;
-			byte_done   = 1'b1;
-			@(posedge clk); #1;
-			byte_done   = 1'b0;
-			repeat(2) @(posedge clk); #1;
-
-			// If address NACK, FSM should go straight to STOP
-			if (ack_addr) begin
-				stop_done = 1'b1;
-				@(posedge clk); #1;
-				stop_done = 1'b0;
-				repeat(2) @(posedge clk); #1;
-			end
-			else begin
-				// DATA_TX → DATA_ACK (1st data byte)
-				byte_done = 1'b1;
-				@(posedge clk); #1;
-				byte_done = 1'b0;
-				repeat(2) @(posedge clk); #1;
-
-				// DATA_ACK — ACK/NACK for data byte
-				// tx_empty is sampled in/around DATA_ACK to decide continue vs STOP
-				tx_empty    = ~more_data;
-				sda_sampled = ack_data;
-				byte_done   = 1'b1;
-				@(posedge clk); #1;
-				byte_done   = 1'b0;
-				repeat(2) @(posedge clk); #1;
-
-				// Optional second data byte (only if more_data and data was ACKed)
-				if (more_data && (ack_data == 1'b0)) begin
-					tx_empty = 1'b0;
-					byte_done = 1'b1;
-					@(posedge clk); #1;
-					byte_done = 1'b0;
-					repeat(2) @(posedge clk); #1;
-
-					// Second DATA_ACK → stop (no more data)
-					tx_empty    = 1'b1;
-					sda_sampled = 1'b0;  // ACK
-					byte_done   = 1'b1;
-					@(posedge clk); #1;
-					byte_done   = 1'b0;
-					repeat(2) @(posedge clk); #1;
-				end
-
-				// STOP
-				stop_done = 1'b1;
-				@(posedge clk); #1;
-				stop_done = 1'b0;
-				repeat(2) @(posedge clk); #1;
-			end
-		end
-	endtask
-
-
-	// ─────────────────────────────────────
-	// Task — Simulate full read transaction
-	// IDLE→START→ADDR→ADDR_ACK→DATA_RX→DATA_ACK→STOP→IDLE
-	// ─────────────────────────────────────
-	task do_read_transfer;
-		begin
-			rw = 1'b1;  // read
-
-			// IDLE → START
-			start_req = 1'b1;
-			@(posedge clk); #1;
-			start_req = 1'b0;
-			repeat(2) @(posedge clk); #1;
-
-			// START → ADDR
-			start_done = 1'b1;
-			@(posedge clk); #1;
-			start_done = 1'b0;
-			repeat(2) @(posedge clk); #1;
-
-			// ADDR → ADDR_ACK
-			byte_done = 1'b1;
-			@(posedge clk); #1;
-			byte_done = 1'b0;
-			repeat(2) @(posedge clk); #1;
-
-			// ADDR_ACK — ACK received
-			sda_sampled = 1'b0;     // ACK
-			byte_done   = 1'b1;
-			@(posedge clk); #1;
-			byte_done   = 1'b0;
-			repeat(2) @(posedge clk); #1;
-
-			// DATA_RX → DATA_ACK
-			byte_done = 1'b1;
-			@(posedge clk); #1;
-			byte_done = 1'b0;
-			repeat(2) @(posedge clk); #1;
-
-			// DATA_ACK — send NACK to stop
-			sda_sampled = 1'b1;     // NACK = done reading
-			byte_done   = 1'b1;
-			@(posedge clk); #1;
-			byte_done   = 1'b0;
-			repeat(2) @(posedge clk); #1;
-
-			// STOP
-			stop_done = 1'b1;
-			@(posedge clk); #1;
-			stop_done = 1'b0;
-			repeat(2) @(posedge clk); #1;
-		end
-	endtask
-
-	// ─────────────────────────────────────
-	// Main Stimulus
-	// ─────────────────────────────────────
-	initial begin
-		$display("=== tb_i2c_master_fsm START ===");
-
-		// ─────────────────────
-		// TEST 1 — Reset
-		// ─────────────────────
-		$display("--- TEST1: Reset ---");
-		apply_reset;
-
-		check(1'b0, gen_start,   "RESET_GEN_START");
-		check(1'b0, gen_stop,    "RESET_GEN_STOP");
-		check(1'b0, bit_ctrl_en, "RESET_BITCTRL_EN");
-		check(1'b0, load,        "RESET_LOAD");
-		check(1'b0, busy,        "RESET_BUSY");
-
-		// ─────────────────────
-		// TEST 2 — IDLE no start
-		// FSM stays IDLE
-		// ─────────────────────
-		$display("--- TEST2: IDLE no start_req ---");
-		apply_reset;
-		repeat(10) @(posedge clk); #1;
-
-		check(1'b0, busy,      "IDLE_NOT_BUSY");
-		check(1'b0, gen_start, "IDLE_NO_GENSTART");
-		$display("    FSM stays IDLE without start_req ✅");
-
-		// ─────────────────────
-		// TEST 3 — START generation
-		// start_req → gen_start fires
-		// ─────────────────────
-		$display("--- TEST3: START generation ---");
-		apply_reset;
-		clear_captures;
-
-		start_req = 1'b1;
-		@(posedge clk); #1;
-		start_req = 1'b0;
-		repeat(3) @(posedge clk); #1;
-
-		check(1'b1, gen_start_captured, "GEN_START_FIRES");
-		check(1'b1, busy,               "BUSY_IN_START");
-		$display("    gen_start fired on start_req ✅");
-
-		// ─────────────────────
-		// TEST 4 — ADDR load after start_done
-		// start_done → load + bit_ctrl_en
-		// ─────────────────────
-		$display("--- TEST4: ADDR load after start_done ---");
-		apply_reset;
-		clear_captures;
-
-		// trigger START
-		start_req  = 1'b1;
-		@(posedge clk); #1;
-		start_req  = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// assert start_done
-		start_done = 1'b1;
-		@(posedge clk); #1;
-		start_done = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		check(1'b1, load_captured,    "LOAD_ON_START_DONE");
-		check(1'b1, bit_ctrl_en,      "BITCTRL_EN_ADDR");
-		$display("    addr loaded into shift_reg after start_done ✅");
-
-		// ─────────────────────
-		// TEST 5 — Write with ACK
-		// full write sequence
-		// ─────────────────────
-		$display("--- TEST5: Full write with ACK ---");
-		apply_reset;
-		clear_captures;
-		rw       = 1'b0;    // write
-		tx_empty = 1'b0;    // data available
-
-		do_write_transfer(
-			1'b0,  // ack_addr (0=ACK)
-			1'b0,  // ack_data (0=ACK)
-			1'b0   // more_data
-		);
-
-		check(1'b1, gen_start_captured, "WRITE_GEN_START");
-		check(1'b1, load_captured,      "WRITE_LOAD");
-		check(1'b1, tx_rd_en_captured,  "WRITE_TX_RD_EN");
-		check(1'b1, gen_stop_captured,  "WRITE_GEN_STOP");
-		$display("    full write ACK sequence complete ✅");
-
-		// ─────────────────────
-		// TEST 6 — Write with NACK on address
-		// NACK → go to STOP immediately
-		// ─────────────────────
-		$display("--- TEST6: NACK on address ---");
-		apply_reset;
-		clear_captures;
-		rw = 1'b0;
-
-		// IDLE → START
-		start_req  = 1'b1;
-		@(posedge clk); #1;
-		start_req  = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// START done
-		start_done = 1'b1;
-		@(posedge clk); #1;
-		start_done = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// ADDR done
-		byte_done  = 1'b1;
-		@(posedge clk); #1;
-		byte_done  = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// ADDR_ACK — NACK received
-		sda_sampled = 1'b1;     // NACK
-		byte_done   = 1'b1;
-		@(posedge clk); #1;
-		byte_done   = 1'b0;
-		repeat(3) @(posedge clk); #1;
-
-		// should go straight to STOP
-		check(1'b1, gen_stop_captured,  "NACK_GEN_STOP");
-		// should NOT go to DATA_TX
-		check(1'b0, tx_rd_en_captured,  "NACK_NO_TX_RD");
-		$display("    NACK on address → STOP immediately ✅");
-
-		// STOP done
-		stop_done = 1'b1;
-		@(posedge clk); #1;
-		stop_done = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		check(1'b0, busy, "NACK_BACK_IDLE");
-		$display("    back to IDLE after NACK ✅");
-
-		// ─────────────────────
-		// TEST 7 — Full Read
-		// ─────────────────────
-		$display("--- TEST7: Full read ---");
-		apply_reset;
-		clear_captures;
-
-		do_read_transfer;
-
-		check(1'b1, gen_start_captured, "READ_GEN_START");
-		check(1'b1, load_captured,      "READ_LOAD_ADDR");
-		check(1'b1, rx_wr_en_captured,  "READ_RX_WR_EN");
-		check(1'b1, gen_stop_captured,  "READ_GEN_STOP");
-		$display("    full read sequence complete ✅");
-
-		// ─────────────────────
-		// TEST 8 — Busy flag
-		// busy=1 during transfer
-		// busy=0 in IDLE
-		// ─────────────────────
-		$display("--- TEST8: Busy flag ---");
-		apply_reset;
-		clear_captures;
-		rw       = 1'b0;
-		tx_empty = 1'b0;
-
-		// check not busy before start
-		check(1'b0, busy, "NOT_BUSY_BEFORE");
-
-		// trigger transfer
-		start_req  = 1'b1;
-		@(posedge clk); #1;
-		start_req  = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// should be busy now
-		check(1'b1, busy, "BUSY_DURING_XFER");
-
-		// complete transfer
-		start_done  = 1'b1;
-		@(posedge clk); #1;
-		start_done  = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		byte_done   = 1'b1;
-		@(posedge clk); #1;
-		byte_done   = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		sda_sampled = 1'b0;
-		byte_done   = 1'b1;
-		@(posedge clk); #1;
-		byte_done   = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		byte_done   = 1'b1;
-		@(posedge clk); #1;
-		byte_done   = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		tx_empty    = 1'b1;
-		sda_sampled = 1'b0;
-		byte_done   = 1'b1;
-		@(posedge clk); #1;
-		byte_done   = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		stop_done   = 1'b1;
-		@(posedge clk); #1;
-		stop_done   = 1'b0;
-		repeat(3) @(posedge clk); #1;
-
-		check(1'b0, busy, "NOT_BUSY_AFTER");
-		$display("    busy flag correct throughout ✅");
-
-		// ─────────────────────
-		// TEST 9 — Multi byte write
-		// tx_empty=0 → continue
-		// tx_empty=1 → STOP
-		// ─────────────────────
-		$display("--- TEST9: Multi byte write ---");
-		apply_reset;
-		clear_captures;
-		rw       = 1'b0;
-		tx_empty = 1'b0;    // 2 bytes available
-
-		// START
-		start_req  = 1'b1;
-		@(posedge clk); #1;
-		start_req  = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		start_done = 1'b1;
-		@(posedge clk); #1;
-		start_done = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// ADDR
-		byte_done  = 1'b1;
-		@(posedge clk); #1;
-		byte_done  = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// ADDR ACK
-		sda_sampled = 1'b0;
-		byte_done   = 1'b1;
-		@(posedge clk); #1;
-		byte_done   = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// BYTE 1 DATA_TX
-		byte_done   = 1'b1;
-		@(posedge clk); #1;
-		byte_done   = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// BYTE 1 DATA_ACK — more data
-		tx_empty    = 1'b0;     // still more data
-		sda_sampled = 1'b0;
-		byte_done   = 1'b1;
-		@(posedge clk); #1;
-		byte_done   = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// check tx_rd_en fired for next byte
-		check(1'b1, tx_rd_en_captured, "MULTI_TX_RD_EN");
-		$display("    tx_rd_en fires for next byte ✅");
-
-		// BYTE 2 DATA_TX
-		byte_done   = 1'b1;
-		@(posedge clk); #1;
-		byte_done   = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		// BYTE 2 DATA_ACK — no more data
-		tx_empty    = 1'b1;     // FIFO empty now
-		sda_sampled = 1'b0;
-		byte_done   = 1'b1;
-		@(posedge clk); #1;
-		byte_done   = 1'b0;
-		repeat(3) @(posedge clk); #1;
-
-		// should go to STOP now
-		check(1'b1, gen_stop_captured, "MULTI_GEN_STOP");
-		$display("    STOP after last byte ✅");
-
-		stop_done = 1'b1;
-		@(posedge clk); #1;
-		stop_done = 1'b0;
-		repeat(2) @(posedge clk); #1;
-
-		check(1'b0, busy, "MULTI_BACK_IDLE");
-		$display("    back to IDLE after multi-byte write ✅");
-
-		$display("=== tb_i2c_master_fsm DONE ===");
-		$finish;
-	end
-
-	// ─────────────────────────────────────
-	// Waveform Dump
-	// ─────────────────────────────────────
-	initial begin
-		$dumpfile("tb_i2c_master_fsm.vcd");
-		$dumpvars(0, tb_i2c_master_fsm);
-	end
-
-	// ─────────────────────────────────────
-	// Monitor
-	// ─────────────────────────────────────
-	initial begin
-		$monitor("t=%0t | start=%b stop=%b bce=%b load=%b | busy=%b arb=%b",
-				  $time,
-				  gen_start, gen_stop,
-				  bit_ctrl_en, load,
-				  busy, arb_lost);
-	end
+    // --- Signals ---
+    reg  clk;
+    reg  resetn;
+    
+    reg  i2c_en;
+    reg  mode_master;
+    reg  api_start;
+    reg  api_stop_req;
+    reg  api_reload_en;
+    reg  api_continue;
+    reg  api_rw;
+    reg  [6:0] api_slave_addr;
+    reg  [7:0] api_len;
+    
+    wire api_busy;
+    wire api_arb_lost;
+    wire api_done;
+    wire api_reload_req;
+    wire api_nack_err;
+    wire api_addr_phase;
+    wire [3:0] api_state_out;
+    
+    reg  fifo_tx_empty;
+    wire fifo_tx_rd_en;
+    reg  fifo_rx_full;
+    wire fifo_rx_wr_en;
+    
+    reg  ctrl_byte_done;
+    reg  ctrl_sda_sampled;
+    reg  ctrl_arb_lost;
+    wire ctrl_en;
+    wire ctrl_is_read;
+    wire ctrl_load;
+    wire ctrl_ack_phase;
+    
+    reg  phy_start_done;
+    reg  phy_stop_done;
+    reg  phy_scl_in;
+    wire phy_gen_start;
+    wire phy_gen_stop;
+    
+    wire scl_oe;
+    wire scl_out;
+
+    // --- Instantiate FSM ---
+    i2c_master_fsm u_fsm (
+        .clk(clk), .resetn(resetn),
+        .i2c_en(i2c_en), .mode_master(mode_master),
+        .api_start(api_start), .api_stop_req(api_stop_req),
+        .api_reload_en(api_reload_en), .api_continue(api_continue),
+        .api_rw(api_rw), .api_slave_addr(api_slave_addr), .api_len(api_len),
+        .api_busy(api_busy), .api_arb_lost(api_arb_lost),
+        .api_done(api_done), .api_reload_req(api_reload_req),
+        .api_nack_err(api_nack_err), .api_addr_phase(api_addr_phase),
+        .api_state_out(api_state_out),
+        .fifo_tx_empty(fifo_tx_empty), .fifo_tx_rd_en(fifo_tx_rd_en),
+        .fifo_rx_full(fifo_rx_full), .fifo_rx_wr_en(fifo_rx_wr_en),
+        .ctrl_byte_done(ctrl_byte_done), .ctrl_sda_sampled(ctrl_sda_sampled),
+        .ctrl_arb_lost(ctrl_arb_lost), .ctrl_en(ctrl_en),
+        .ctrl_is_read(ctrl_is_read), .ctrl_load(ctrl_load),
+        .ctrl_ack_phase(ctrl_ack_phase),
+        .phy_start_done(phy_start_done), .phy_stop_done(phy_stop_done),
+        .phy_scl_in(phy_scl_in), .phy_gen_start(phy_gen_start),
+        .phy_gen_stop(phy_gen_stop),
+        .scl_oe(scl_oe), .scl_out(scl_out)
+    );
+
+    // --- Clock Generation ---
+    initial begin clk = 0; forever #10 clk = ~clk; end
+
+    // --- Helper Tasks ---
+    task assert_state(input [3:0] expected, input [100*8:1] label);
+        begin
+            if (api_state_out !== expected) begin
+                $display("[%0t ns] ❌ [FAIL] %s | Exp: %0d, Got: %0d", $time, label, expected, api_state_out);
+            end else begin
+                $display("[%0t ns] ✅ [PASS] %s (State %0d)", $time, label, api_state_out);
+            end
+        end
+    endtask
+
+    task assert_val(input exp, input act, input [80*8:1] msg);
+        if (exp !== act) $display("   ❌ [SIGNAL ERROR] %s | Exp: %b, Got: %b", msg, exp, act);
+        else             $display("   ✅ [SIGNAL PASS] %s", msg);
+    endtask
+
+    // --- Main Test ---
+    initial begin
+        // Initialize
+        resetn = 0; i2c_en = 1; mode_master = 1;
+        api_start = 0; api_stop_req = 0; api_reload_en = 0; api_continue = 0;
+        api_rw = 0; api_slave_addr = 7'h50; api_len = 8'd1;
+        fifo_tx_empty = 1; fifo_rx_full = 0;
+        ctrl_byte_done = 0; ctrl_sda_sampled = 0; ctrl_arb_lost = 0;
+        phy_start_done = 0; phy_stop_done = 0; phy_scl_in = 1;
+        
+        $display("\n=======================================================");
+        $display(" 🧠 I2C MASTER FSM UNIT TEST (STEP-BY-STEP)");
+        $display("=======================================================\n");
+
+        #100 resetn = 1;
+        #20 assert_state(0, "Should be in M_IDLE");
+
+        // ----------------------------------------------------
+        // SCENARIO 1: WRITE TRANSACTION (Start -> Addr -> Data -> Stop)
+        // ----------------------------------------------------
+        $display("\n--- SCENARIO 1: Master Write 1 Byte ---");
+        api_start = 1; api_rw = 0; fifo_tx_empty = 0; api_stop_req = 1; api_len = 1;
+        @(posedge clk); #2; assert_state(1, "After Start: Move to M_START_GEN");
+        api_start = 0;
+        
+        phy_start_done = 1;
+        @(posedge clk); #2; assert_state(2, "Move to M_TX_ADDR_LOAD");
+        phy_start_done = 0;
+        
+        @(posedge clk); #2; assert_state(3, "Move to M_TX_ADDR");
+
+        // จำลองการส่ง Address
+        ctrl_byte_done = 1; ctrl_sda_sampled = 0; // ACK
+        @(posedge clk); ctrl_byte_done = 0;
+        #2; assert_state(4, "Move to M_TX_DATA_WAIT");
+
+        // จำลองมีข้อมูลใน FIFO (fifo_tx_empty = 0)
+        @(posedge clk); #2; assert_state(5, "Move to M_TX_DATA_PREF");
+        assert_val(1'b1, fifo_tx_rd_en, "Should pulse TX_RD_EN");
+
+        @(posedge clk); #2; assert_state(6, "Move to M_TX_DATA");
+        
+        ctrl_byte_done = 1; ctrl_sda_sampled = 0; // ACK
+        @(posedge clk); ctrl_byte_done = 0;
+        #2; assert_state(9, "Move to M_CHECK_LEN");
+
+        // Length = 1, Byte count = 1. Stop = 1 -> M_STOP_GEN
+        @(posedge clk); #2; assert_state(13, "Move to M_STOP_GEN");
+
+        phy_stop_done = 1;
+        @(posedge clk); #2; assert_state(0, "After Stop Done: Back to M_IDLE");
+        phy_stop_done = 0;
+
+        // ----------------------------------------------------
+        // SCENARIO 2: REPEATED START
+        // ----------------------------------------------------
+        $display("\n--- SCENARIO 2: Repeated Start (Stop = 0) ---");
+        api_start = 1; api_rw = 0; fifo_tx_empty = 0; api_stop_req = 0; api_len = 1;
+        @(posedge clk); #2; 
+        api_start = 0; phy_start_done = 1;
+        @(posedge clk); phy_start_done = 0;
+        @(posedge clk); // M_TX_ADDR_LOAD
+        @(posedge clk); // M_TX_ADDR
+        ctrl_byte_done = 1; ctrl_sda_sampled = 0;
+        @(posedge clk); ctrl_byte_done = 0;
+        @(posedge clk); // M_TX_DATA_WAIT
+        @(posedge clk); // M_TX_DATA_PREF
+        @(posedge clk); // M_TX_DATA
+        ctrl_byte_done = 1; ctrl_sda_sampled = 0;
+        @(posedge clk); ctrl_byte_done = 0;
+        #2; assert_state(9, "Move to M_CHECK_LEN");
+        
+        @(posedge clk); #2; assert_state(11, "Move to M_REP_START_WAIT (since stop=0)");
+        assert_val(1'b1, scl_oe, "Should stretch SCL in M_REP_START_WAIT");
+        
+        api_start = 1;
+        @(posedge clk); #2; assert_state(12, "Move to M_REP_START_GEN");
+        api_start = 0;
+        
+        phy_start_done = 1;
+        @(posedge clk); phy_start_done = 0;
+        @(posedge clk); #2; assert_state(3, "Move to M_TX_ADDR");
+        
+        // Stop it
+        api_stop_req = 1;
+        ctrl_byte_done = 1; ctrl_sda_sampled = 0;
+        @(posedge clk); ctrl_byte_done = 0;
+        @(posedge clk); // WAIT
+        @(posedge clk); // PREF
+        @(posedge clk); // DATA
+        ctrl_byte_done = 1; ctrl_sda_sampled = 0;
+        @(posedge clk); ctrl_byte_done = 0;
+        @(posedge clk); // CHECK_LEN
+        @(posedge clk); // STOP
+        phy_stop_done = 1;
+        @(posedge clk); phy_stop_done = 0;
+        
+        $display("\n=======================================================");
+        $display(" 🎉 FSM UNIT TEST COMPLETED!");
+        $display("=======================================================\n");
+        $finish;
+    end
 
 endmodule

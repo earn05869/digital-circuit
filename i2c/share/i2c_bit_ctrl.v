@@ -1,120 +1,154 @@
 module i2c_bit_ctrl (
-	input clk,
-	input resetn,
-	input enable,
-	input ack_phase,
-
-	input [7:0] tx_data,
-	input load,
-	output [7:0] rx_data,
-	output reg rx_valid,
-	output reg byte_done,
-
-	output reg sda_sampled,
-	output reg sda_oe,
-	output sda_out,
-
-	input scl_in,
-	input sda_in
+	input  wire       clk,
+	input  wire       resetn,
+	
+	// --- สัญญาณควบคุมระดับ Byte (จาก FSM) ---
+	input  wire       enable,       // สั่งให้เริ่มทำงาน
+	input  wire       is_read,      // 0 = ส่ง (TX), 1 = รับ (RX)
+	input  wire       ack_phase,    // 0 = ACK, 1 = NACK (เมื่อ Master เป็นคนรับข้อมูล)
+	input  wire       load,         // สั่งบรรจุข้อมูลลง Shift Reg
+	input  wire [7:0] tx_data,      // ข้อมูลที่จะส่ง
+	
+	// --- สัญญาณส่งกลับให้ FSM ---
+	output wire [7:0] rx_data,      // ข้อมูล 8 บิตที่รับสำเร็จ
+	output reg        rx_ack,       // สถานะ ACK จาก Slave (0 = ACK, 1 = NACK)
+	output reg        byte_done,    // แจ้งว่าทำงานครบ 9 บิตแล้ว
+	output reg        arb_lost,     // แจ้งว่าแพ้การประมูลบัส (Multi-master)
+	
+	// --- สัญญาณเชื่อมต่อ IO Pad ---
+	output reg        sda_oe,       // Output Enable สำหรับ SDA (1 = Drive, 0 = High-Z)
+	output wire       sda_out,      // ข้อมูลที่จะขับออกไป
+	input  wire       scl_in,       // สัญญาณ SCL ที่อ่านได้จริง
+	input  wire       sda_in        // สัญญาณ SDA ที่อ่านได้จริง
 );
 
-	localparam PH_IDLE = 2'd0;
-	localparam PH_LOW  = 2'd1; // SCL is low, update SDA
-	localparam PH_HIGH = 2'd2; // SCL is high, sample SDA
-
-	reg [1:0] phase;
-	reg       shift_tx_en;
-	reg       shift_rx_en;
-	reg [3:0] bit_cnt;
-	reg       scl_prev;
-	
-	wire scl_rise = (scl_prev == 1'b0) && (scl_in == 1'b1);
-	wire scl_fall = (scl_prev == 1'b1) && (scl_in == 1'b0);
-
-	i2c_shift_reg shift_register (
-		.clk(clk),
-		.rst_n(resetn),
-		.shift_tx(shift_tx_en),
-		.shift_rx(shift_rx_en),
-		.load(load),
-		.serial_in(sda_in),
-		.data_in(tx_data),
-		.serial_out(sda_out),
-		.data_out(rx_data)
-	);
-
+	// ==============================================================
+	// 1. Edge Detection (ตรวจจับขอบสัญญาณ SCL)
+	// ==============================================================
+	reg scl_prev;
 	always @(posedge clk or negedge resetn) begin
 		if (!resetn) scl_prev <= 1'b1;
 		else         scl_prev <= scl_in;
 	end
+	
+	// SCL Rising Edge: จังหวะที่ Master และ Slave ต้องอ่านค่า (Sample)
+	wire trigger_sample = (scl_prev == 1'b0) && (scl_in == 1'b1); 
+	// SCL Falling Edge: จังหวะที่ Master และ Slave ต้องเปลี่ยนค่า (Setup)
+	wire trigger_setup  = (scl_prev == 1'b1) && (scl_in == 1'b0); 
 
-	always @(posedge clk or negedge resetn) begin
-		if (!resetn) begin
-			phase       <= PH_IDLE;
-			sda_oe      <= 1'b0;
-			shift_tx_en <= 1'b0;
-			shift_rx_en <= 1'b0;
-			bit_cnt     <= 4'd0;
-			rx_valid    <= 1'b0;
-			byte_done   <= 1'b0;
-			sda_sampled <= 1'b1;
-		end else begin
-			shift_tx_en <= 1'b0;
-			shift_rx_en <= 1'b0;
-			byte_done   <= 1'b0;
-			rx_valid    <= 1'b0;
+	// ==============================================================
+	// 2. Instantiate: Shift Register & Bit Counter
+	// ==============================================================
+	reg  sda_sampled_bit; 
+	reg  shift_en;
+	wire shift_out_bit;
 
-			if (!enable) begin
-				phase   <= PH_IDLE;
-				sda_oe  <= 1'b0;
-				bit_cnt <= 4'd0;
-			end else begin
-				case (phase)
-					PH_IDLE: begin
-						// On the first entry, Bit 7 is already driven by the shift reg.
-						// We just need to set the OE and wait for the first falling edge.
-						if (bit_cnt < 8) sda_oe <= 1'b1;
-						else             sda_oe <= ack_phase;
+	i2c_shift_reg u_shift_reg (
+		.clk        (clk),
+		.rst_n      (resetn),
+		.shift      (shift_en),
+		.load       (load),
+		.serial_in  (sda_sampled_bit),
+		.data_in    (tx_data),
+		.serial_out (shift_out_bit),
+		.data_out   (rx_data)
+	);
 
-						if (scl_fall) begin
-							phase <= PH_HIGH; 
+	reg  cnt_en;
+	reg  cnt_clear;
+	wire [3:0] current_bit;
+	wire cnt_done;
+
+	i2c_bit_cnt u_bit_counter (
+		.clk       (clk),
+		.resetn    (resetn),
+		.enable    (cnt_en),
+		.clear     (cnt_clear),
+		.max_count (4'd8),
+		.count     (current_bit),
+		.done      (cnt_done)
+	);
+
+	// ==============================================================
+	// 3. Data Out MUX (เลือกว่าจะส่ง Data Bit หรือ ACK/NACK)
+	// ==============================================================
+	// บิต 0-7 ส่งข้อมูลจาก Shift Reg, บิตที่ 8 (9th clock) ส่งค่า ACK/NACK
+	assign sda_out = (current_bit < 4'd8) ? shift_out_bit : ack_phase;
+
+	// ==============================================================
+	// 4. Main Bit-Level State Machine
+	// ==============================================================
+	localparam IDLE        = 2'd0;
+	localparam WAIT_SAMPLE = 2'd1; // ช่วง SCL เป็น High
+	localparam WAIT_SETUP  = 2'd2; // ช่วง SCL เป็น Low
+
+	reg [1:0] state;
+
+	// ==============================================================
+// 5. Main Bit-Level State Machine (FIXED VERSION)
+// ==============================================================
+always @(posedge clk or negedge resetn) begin
+	if (!resetn) begin
+		state           <= IDLE;
+		sda_oe          <= 1'b0;
+		byte_done       <= 1'b0;
+		rx_ack          <= 1'b1; 
+		sda_sampled_bit <= 1'b1;
+		shift_en        <= 1'b0;
+		cnt_en          <= 1'b0;
+		cnt_clear       <= 1'b0;
+		arb_lost        <= 1'b0;
+	end else begin
+		// --- 🛡️ CONTINUOUS ARBITRATION MONITORING ---
+		if (state != IDLE && scl_in && sda_oe && sda_out && !sda_in) begin
+			arb_lost <= 1'b1; // เซตเป็น 1 เมื่อเกิดปัญหา
+			sda_oe   <= 1'b0; 
+			state    <= IDLE; 
+		end 
+		else begin
+			shift_en  <= 1'b0;
+			cnt_en    <= 1'b0;
+			cnt_clear <= 1'b0;
+			byte_done <= 1'b0;
+
+			case (state)
+				IDLE: begin
+					// ❌ ลบ arb_lost <= 1'b0; ออกจากตรงนี้
+					if (enable) begin
+						arb_lost  <= 1'b0; // ✅ เคลียร์เฉพาะตอนเริ่มงานใหม่เท่านั้น
+						state     <= WAIT_SAMPLE;
+						cnt_clear <= 1'b1; 
+						sda_oe    <= ~is_read; 
+					end else begin
+						sda_oe    <= 1'b0;
+					end
+				end
+				// ... (ส่วน WAIT_SAMPLE และ WAIT_SETUP เหมือนเดิม) ...
+				WAIT_SAMPLE: begin
+					if (trigger_sample) begin
+						sda_sampled_bit <= sda_in; 
+						if (current_bit == 4'd8) rx_ack <= sda_in; 
+						state <= WAIT_SETUP;
+					end
+				end
+
+				WAIT_SETUP: begin
+					if (trigger_setup) begin
+						if (current_bit < 4'd8) begin
+							shift_en <= 1'b1;
+							cnt_en   <= 1'b1; 
+							if (current_bit == 4'd7) sda_oe <= is_read;
+							else                     sda_oe <= ~is_read;
+							state <= WAIT_SAMPLE;
+						end else begin
+							byte_done <= 1'b1; 
+							state     <= IDLE;
 						end
 					end
-
-					PH_LOW: begin
-						if (scl_fall) begin
-							phase <= PH_HIGH;
-							// Only shift for bits 1 through 8. 
-							// Bit 7 (the first bit) was already there at start.
-							if (bit_cnt > 0 && bit_cnt <= 7) begin
-								shift_tx_en <= 1'b1;
-							end
-							
-							// Set OE for the upcoming HIGH period
-							if (bit_cnt < 8) sda_oe <= 1'b1;
-							else             sda_oe <= ack_phase;
-						end
-					end
-
-					PH_HIGH: begin
-						if (scl_rise) begin
-							phase <= PH_LOW;
-							sda_sampled <= sda_in; // Sample data/ACK
-							
-							if (bit_cnt < 8) begin
-								shift_rx_en <= 1'b1;
-								bit_cnt     <= bit_cnt + 4'd1;
-							end else begin
-								// 9th bit finished
-								bit_cnt     <= 4'd0;
-								byte_done   <= 1'b1;
-								rx_valid    <= 1'b1;
-								phase       <= PH_IDLE;
-							end
-						end
-					end
-				endcase
-			end
+				end
+			endcase
 		end
 	end
+end
+
 endmodule

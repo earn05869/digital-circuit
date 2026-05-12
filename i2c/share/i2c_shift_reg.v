@@ -32,35 +32,29 @@ OPERATION
 module i2c_shift_reg (
 	input  wire       clk,
 	input  wire       rst_n,
-	input  wire       shift_tx,
-	input  wire       shift_rx,
+	input  wire       shift,
 	input  wire       load,
 	input  wire       serial_in,
 	input  wire [7:0] data_in,
 	output wire       serial_out,
 	output wire [7:0] data_out );
 
-	reg [7:0] tx_mem;
-	reg [7:0] rx_mem;
+	reg [7:0] mem;
 
 	always @(posedge clk or negedge rst_n) begin
 		if (!rst_n) begin
-			tx_mem <= 8'hFF;
-			rx_mem <= 8'h00;
+			mem <= 8'hFF;
 		end else begin
 			if (load) begin
-				tx_mem <= data_in;
-				rx_mem <= data_in;
+				mem <= data_in;
 			end
-			else if (shift_tx)
-				tx_mem <= {tx_mem[6:0], 1'b1};
-
-			if (shift_rx)
-				rx_mem <= {rx_mem[6:0], serial_in};
+			else if (shift) begin
+				mem <= {mem[6:0], serial_in};
+			end
 		end
 	end
 
-	assign serial_out = tx_mem[7];
-	assign data_out   = rx_mem;
+	assign serial_out = mem[7];
+	assign data_out   = mem;
 
 endmodule

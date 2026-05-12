@@ -41,13 +41,16 @@ module tb_i2c_slave_fsm;
 	i2c_slave_fsm u_dut (
 		.clk         (clk),
 		.resetn      (resetn),
+		.i2c_en      (1'b1),
 		.slave_addr  (slave_addr),
+		.api_len     (8'd2),
 		.start_det   (start_det),
 		.stop_det    (stop_det),
 		.byte_done   (byte_done),
 		.sda_sampled (sda_sampled),
 		.rx_data     (rx_data),
 		.tx_empty    (tx_empty),
+		.rx_full     (1'b0),
 		.bit_ctrl_en (bit_ctrl_en),
 		.load        (load),
 		.tx_rd_en    (tx_rd_en),
@@ -55,7 +58,13 @@ module tb_i2c_slave_fsm;
 		.sda_oe      (sda_oe),
 		.sda_out     (sda_out),
 		.addr_match  (addr_match),
-		.busy        (busy)
+		.busy        (busy),
+		.api_done    (),
+		.api_stop_det(),
+		.dir         (),
+		.ack_phase   (),
+		.scl_oe      (),
+		.scl_out     ()
 	);
 
 	// ─────────────────────────────────────
